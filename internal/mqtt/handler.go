@@ -77,13 +77,19 @@ func (c *Client) messageHandler(client mqtt.Client, msg mqtt.Message) {
 		f, err := os.OpenFile(outPath, os.O_CREATE|os.O_EXCL|os.O_WRONLY, 0644)
 		if err != nil {
 			c.logger.Error(err, "cannot create file", "file", outPath)
-			resp.Body.Close()
+			if cerr := resp.Body.Close(); cerr != nil {
+				c.logger.Error(cerr, "failed to close HTTP response body")
+			}
 			continue
 		}
 
 		_, err = io.Copy(f, resp.Body)
-		resp.Body.Close()
-		f.Close()
+		if cerr := resp.Body.Close(); cerr != nil {
+			c.logger.Error(cerr, "failed to close HTTP response body")
+		}
+		if cerr := f.Close(); cerr != nil {
+			c.logger.Error(cerr, "failed to close file")
+		}
 		if err != nil {
 			c.logger.Error(err, "failed writing file", "file", outPath)
 			continue
