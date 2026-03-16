@@ -57,7 +57,7 @@ func (o *IngestOptions) load() error {
 	// Topics are mandatory
 	topicStr := os.Getenv("WIS2_MQTT_TOPIC")
 	if topicStr == "" {
-		return fmt.Errorf("WIS2_MQTT_TOPIC must be defined.")
+		return fmt.Errorf("WIS2_MQTT_TOPIC must be defined")
 	}
 	o.Topics = strings.Split(topicStr, ";")
 	for i := range o.Topics {
@@ -66,7 +66,7 @@ func (o *IngestOptions) load() error {
 
 	// OutputDir is mandatory
 	if o.OutputDir = os.Getenv("WIS2_OUTPUT_DIRECTORY"); o.OutputDir == "" {
-		return fmt.Errorf("WIS2_OUTPUT_DIRECTORY must be present.")
+		return fmt.Errorf("WIS2_OUTPUT_DIRECTORY must be defined")
 	}
 
 	return nil
