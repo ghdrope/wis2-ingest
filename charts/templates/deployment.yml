@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "wis2-ingest.fullname" . }}
+  labels:
+    app: {{ include "wis2-ingest.name" . }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ include "wis2-ingest.name" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "wis2-ingest.name" . }}
+    spec:
+      containers:
+        - name: wis2-ingest
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: ["ingest"]
+          env:
+            - name: WIS2_MQTT_TOPIC
+              value: "{{ .Values.env.WIS2_MQTT_TOPIC }}"
+            - name: WIS2_OUTPUT_DIRECTORY
+              value: "{{ .Values.env.WIS2_OUTPUT_DIRECTORY }}"
+          {{- if .Values.volume.enabled }}
+          volumeMounts:
+            - name: wis2-output
+              mountPath: {{ .Values.volume.mountPath }}
+          {{- end }}
+      {{- if .Values.volume.enabled }}
+      volumes:
+        - name: wis2-output
+          hostPath:
+            path: {{ .Values.volume.hostPath }}
+            type: DirectoryOrCreate
+      {{- end }}

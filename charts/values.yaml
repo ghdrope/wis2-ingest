@@ -1,0 +1,13 @@
+replicaCount: 1
+
+image:
+  repository: ghcr.io/ghdrope/wis2-ingest
+  tag: "1.0"
+  pullPolicy: Always
+
+env:
+  WIS2_MQTT_TOPIC: "wis2/example/topic"
+  WIS2_OUTPUT_DIRECTORY: "/tmp/data/"
+
+volume:
+  enabled: false

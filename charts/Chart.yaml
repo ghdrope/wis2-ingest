@@ -1,0 +1,6 @@
+apiVersion: v2
+name: wis2-ingest
+description: Helm chart for deploying wis2-ingest
+type: application
+version: 1.0.0
+appVersion: "1.0"
