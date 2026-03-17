@@ -18,7 +18,7 @@ spec:
         - name: wis2-ingest
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-          command: ["ingest"]
+          args: ["ingest"]
           env:
             - name: WIS2_MQTT_TOPIC
               value: "{{ .Values.env.WIS2_MQTT_TOPIC }}"
