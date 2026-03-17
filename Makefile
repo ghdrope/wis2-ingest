@@ -29,7 +29,7 @@ UNIT_TEST_OUT_ARTIFACT := coverage.out
 UNIT_TEST_XML_ARTIFACT := coverage.xml
 
 # Export coverage variables to shell
-export MIN_COVERAGE=0.0
+export MIN_COVERAGE=50.0
 
 
 # ==== Convenience targets ====
@@ -149,7 +149,7 @@ test-unit: build ## Run unit tests with coverage enforcement
 	@echo "[TASK] Running unit tests"
 	@mkdir -p "$(ARTIFACTS_DIR)/$(SDLC_ARTIFACTS_DIR)"
 
-	PACKAGES=$$(go list ./internal/... | grep -v '/tests' | grep -v 'testhelper' | grep -v '^wis2-ingest/$$') && \
+	PACKAGES=$$(go list ./internal/... ./pkg/... | grep -v '/tests' | grep -v 'testhelper' | grep -v '^wis2-ingest/$$') && \
 	echo "$$PACKAGES" && \
 	\
 	COVERAGE_MIN=$$MIN_COVERAGE; \

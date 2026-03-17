@@ -45,7 +45,10 @@ func (c *Client) ConnectAndSubscribe(ctx context.Context) error {
 	opts.OnConnect = func(client mqtt.Client) {
 		c.logger.Info("Connected to MQTT broker")
 		for _, t := range c.cfg.Topics {
-			token := client.Subscribe(t, 1, c.messageHandler)
+			handler := func(cl mqtt.Client, msg mqtt.Message) {
+				c.messageHandler(cl, msg)
+			}
+			token := client.Subscribe(t, 1, handler)
 			token.Wait()
 			if token.Error() != nil {
 				c.logger.Error(token.Error(), "Subscribe error", "topic", t)
