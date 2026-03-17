@@ -42,7 +42,7 @@ jobs:
             org.opencontainers.image.title=wis2-ingest
             org.opencontainers.image.description=An image with wis2-ingest binary installed
             org.opencontainers.image.source=${{ github.repositoryUrl }}
-            org.opencontainers.image.version=${{ github.sha }}
+            org.opencontainers.image.revision=${{ github.sha }}
             org.opencontainers.image.vendor=Pedro Cozinheiro
 
       - name: Login to GitHub Container Registry
