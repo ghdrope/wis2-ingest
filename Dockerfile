@@ -1,5 +1,8 @@
 FROM debian:trixie-backports
 
+ARG VERSION
+ENV VERSION=${VERSION}
+
 # Avoid interactive prompts during apt installs
 ENV DEBIAN_FRONTEND=noninterative
 
