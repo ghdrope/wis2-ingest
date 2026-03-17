@@ -22,9 +22,15 @@ type Payload struct {
 	} `json:"links"`
 }
 
+// Msg defines the minimal interface needed from mqtt.Message for testing.
+type Msg interface {
+	Topic() string
+	Payload() []byte
+}
+
 // messageHandler processes incoming MQTT messages.
 // It downloads canonical .bufr files and stores them in a time-partitioned directory.
-func (c *Client) messageHandler(client mqtt.Client, msg mqtt.Message) {
+func (c *Client) messageHandler(_ mqtt.Client, msg Msg) {
 	now := time.Now().UTC()
 
 	var payload Payload
