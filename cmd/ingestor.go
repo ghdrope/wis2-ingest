@@ -15,7 +15,7 @@ import (
 // The ingest command is responsible for initializing configuration,
 // setting up logging, and starting the WIS2 data ingestion workflow.
 // Configuration is loaded from environment variables via IngestOptions.
-func newIngestCommand() *cobra.Command {
+func newIngestorCommand() *cobra.Command {
 
 	// During startup we enforce an info-level logger to ensure
 	// that important initialization messages are always visible.
@@ -24,7 +24,7 @@ func newIngestCommand() *cobra.Command {
 	bootstrapLogger := logging.NewLoggerOrDie(logging.InfoLevel, format)
 
 	cmd := &cobra.Command{
-		Use: "ingest",
+		Use: "ingestor",
 		RunE: func(cmd *cobra.Command, _ []string) error {
 
 			bootstrapLogger.Info("Starting WIS2 Ingest")
