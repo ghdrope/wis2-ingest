@@ -11,3 +11,8 @@ env:
 
 volume:
   enabled: false
+
+securityContext:
+  enabled: false
+
+nfsMounts: {}
