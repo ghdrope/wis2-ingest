@@ -31,7 +31,7 @@ spec:
         fsGroup: {{ .Values.ingestor.securityContext.fsGroup | int }}
         {{- end }}
         {{- if .Values.ingestor.securityContext.supplementalGroups }}
-        supplementalGroups: {{ toYaml .Values.ingestor.securityContext.supplementalGroups | int | nindent 8 }}
+        supplementalGroups: {{ toYaml .Values.ingestor.securityContext.supplementalGroups | nindent 8 }}
         {{- end }}
       {{- end }}
 
