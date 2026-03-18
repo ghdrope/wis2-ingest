@@ -21,7 +21,8 @@ COPY .bin/wis2-ingest /go/bin/wis2-ingest
 
 # ---- Execution permissions & record version inside container ----
 RUN chmod +x /go/bin/wis2-ingest \
-    && echo "Docker Image Version: ${VERSION}" > /opt/wis2-ingest.rev
+    && echo "Docker Image Version: ${VERSION}" > /opt/wis2-ingest.rev \
+    && chmod 666 /opt/wis2-ingest.rev
 
 # ---- Entrypoint command ----
 ENTRYPOINT ["wis2-ingest"]
