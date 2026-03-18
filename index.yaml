@@ -3,7 +3,17 @@ entries:
   wis2-ingest:
   - apiVersion: v2
     appVersion: "1.0"
-    created: "2026-03-18T16:04:44.081348532+01:00"
+    created: "2026-03-18T16:08:26.951048061+01:00"
+    description: Helm chart for deploying wis2-ingest
+    digest: 4279f546bfb2bd976b88c81b530255762d70ef0b4cced7467553fcd6f48a9502
+    name: wis2-ingest
+    type: application
+    urls:
+    - https://ghdrope.github.io/wis2-ingest/wis2-ingest-2.0.4.tgz
+    version: 2.0.4
+  - apiVersion: v2
+    appVersion: "1.0"
+    created: "2026-03-18T16:08:26.950920358+01:00"
     description: Helm chart for deploying wis2-ingest
     digest: 805e7556842c2d3b8eb4bf2b4bf699757bec248ab13ab9e64ad1525ab31574a9
     name: wis2-ingest
@@ -13,7 +23,7 @@ entries:
     version: 2.0.3
   - apiVersion: v2
     appVersion: "1.0"
-    created: "2026-03-18T16:04:44.081184734+01:00"
+    created: "2026-03-18T16:08:26.950798404+01:00"
     description: Helm chart for deploying wis2-ingest
     digest: eac6ab06d872ee533dfd9d0ce2debc858fc69d8780cc8f317f32c19f1d75761d
     name: wis2-ingest
@@ -23,7 +33,7 @@ entries:
     version: 2.0.2
   - apiVersion: v2
     appVersion: "1.0"
-    created: "2026-03-18T16:04:44.081082044+01:00"
+    created: "2026-03-18T16:08:26.950684991+01:00"
     description: Helm chart for deploying wis2-ingest
     digest: 317ca1546ecf1e1101db6f4d51cbc74354adf45e76679a39088904b13e5ad793
     name: wis2-ingest
@@ -33,7 +43,7 @@ entries:
     version: 2.0.1
   - apiVersion: v2
     appVersion: "1.0"
-    created: "2026-03-18T16:04:44.080946341+01:00"
+    created: "2026-03-18T16:08:26.950562232+01:00"
     description: Helm chart for deploying wis2-ingest
     digest: 57119980410514b0a84f11d8dd8691652058eea9762b8ccf33cc5a2c5652767e
     name: wis2-ingest
@@ -43,7 +53,7 @@ entries:
     version: 2.0.0
   - apiVersion: v2
     appVersion: "1.0"
-    created: "2026-03-18T16:04:44.080818032+01:00"
+    created: "2026-03-18T16:08:26.950397289+01:00"
     description: Helm chart for deploying wis2-ingest
     digest: 37eeb3ca63ac9f074df62d117748b34367d5d290462a31a6d14fdadadbb0ef0a
     name: wis2-ingest
@@ -53,7 +63,7 @@ entries:
     version: 1.0.5
   - apiVersion: v2
     appVersion: "1.0"
-    created: "2026-03-18T16:04:44.080649294+01:00"
+    created: "2026-03-18T16:08:26.950294302+01:00"
     description: Helm chart for deploying wis2-ingest
     digest: c9d5d16f481e67ab3af993c993b8a05cd4c30313169cebad358476fdd64bc631
     name: wis2-ingest
@@ -63,7 +73,7 @@ entries:
     version: 1.0.4
   - apiVersion: v2
     appVersion: "1.0"
-    created: "2026-03-18T16:04:44.080545008+01:00"
+    created: "2026-03-18T16:08:26.950193258+01:00"
     description: Helm chart for deploying wis2-ingest
     digest: 2d9577320523c0cd8ccc0694d0af8d20193294d99cff72248794c021147f8838
     name: wis2-ingest
@@ -73,7 +83,7 @@ entries:
     version: 1.0.3
   - apiVersion: v2
     appVersion: "1.0"
-    created: "2026-03-18T16:04:44.080402078+01:00"
+    created: "2026-03-18T16:08:26.950067865+01:00"
     description: Helm chart for deploying wis2-ingest
     digest: 1dae08f51a30924fceca43964c116e76b5af7a260116a8590fc89709b505fb39
     name: wis2-ingest
@@ -83,7 +93,7 @@ entries:
     version: 1.0.2
   - apiVersion: v2
     appVersion: "1.0"
-    created: "2026-03-18T16:04:44.080222285+01:00"
+    created: "2026-03-18T16:08:26.949959253+01:00"
     description: Helm chart for deploying wis2-ingest
     digest: b5fa13cc300e626b63b33979ba397782704e5d74fdae437ba3d369f6acd1a224
     name: wis2-ingest
@@ -93,7 +103,7 @@ entries:
     version: 1.0.1
   - apiVersion: v2
     appVersion: "1.0"
-    created: "2026-03-18T16:04:44.07922014+01:00"
+    created: "2026-03-18T16:08:26.94980885+01:00"
     description: Helm chart for deploying wis2-ingest
     digest: 3242f1519d4490a5b6fcd64a27448a1239ae693e6ccf7122cf0b3b291e05e87f
     name: wis2-ingest
@@ -101,4 +111,4 @@ entries:
     urls:
     - https://ghdrope.github.io/wis2-ingest/wis2-ingest-1.0.0.tgz
     version: 1.0.0
-generated: "2026-03-18T16:04:44.078559403+01:00"
+generated: "2026-03-18T16:08:26.948498944+01:00"
