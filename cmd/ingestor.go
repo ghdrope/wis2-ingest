@@ -2,8 +2,8 @@ package main
 
 import (
 	"wis2-ingest/internal/config"
-	"wis2-ingest/internal/filesystem"
 	"wis2-ingest/internal/mqtt"
+	"wis2-ingest/pkg/filesystem"
 	"wis2-ingest/pkg/health"
 	"wis2-ingest/pkg/utils"
 
