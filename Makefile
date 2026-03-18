@@ -128,6 +128,26 @@ lint: ## Run golangci-lint
 		exit 1; \
 	fi
 
+.PHONY: helm-lint
+helm-lint: ## Run helm lint for charts
+	@echo "[TASK] Running helm lint"
+	@if ! command -v helm >/dev/null 2>&1; then \
+		echo "❌ Helm is not installed"; \
+		exit 1; \
+	fi
+	@helm lint charts/
+	@echo "✅ Helm lint completed successfully"
+
+.PHONY: helm-template
+helm-template: ## Render helm templates to validate YAML
+	@echo "[TASK] Rendering helm templates"
+	@if ! command -v helm >/dev/null 2>&1; then \
+		echo "❌ Helm is not installed"; \
+		exit 1; \
+	fi
+	@helm template wis2-ingest charts/ > /dev/null
+	@echo "✅ Helm templates render successfully"
+
 
 # ==== Build lifecycle ====
 .PHONY: build
