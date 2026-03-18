@@ -6,8 +6,8 @@ image:
   pullPolicy: Always
 
 env:
-  WIS2_MQTT_TOPIC: "wis2/example/topic"
-  WIS2_OUTPUT_DIRECTORY: "/tmp/data/"
+  WIS2_MQTT_TOPIC: "origin/a/wis2/#"
+  WIS2_OUTPUT_DIRECTORY: "data"
 
 volume:
   enabled: false

@@ -31,5 +31,5 @@ func Execute(ctx context.Context) error {
 
 // init registers CLI subcommands.
 func init() {
-	rootCmd.AddCommand(newIngestCommand())
+	rootCmd.AddCommand(newIngestorCommand())
 }
