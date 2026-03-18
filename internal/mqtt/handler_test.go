@@ -12,7 +12,6 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
-	"time"
 	"wis2-ingest/internal/config"
 
 	"wis2-ingest/pkg/testhelper"
@@ -27,7 +26,7 @@ type MqttMessage struct {
 }
 
 // TestMessageHandler_StoresBufrFiles ensures that canonical .bufr files
-// are downloaded and stored in the correct UTC time-partitioned directory.
+// are downloaded and stored in the configured output directory.
 func TestMessageHandler_StoresBufrFiles(t *testing.T) {
 	tempDir := t.TempDir()
 
@@ -64,7 +63,7 @@ func TestMessageHandler_StoresBufrFiles(t *testing.T) {
 	client.messageHandler(nil, msg)
 
 	// Verify .bufr file exists in correct directory
-	dir := filepath.Join(tempDir, time.Now().UTC().Format("2006/01/02/15"))
+	dir := tempDir
 	files, err := os.ReadDir(dir)
 	if err != nil {
 		t.Fatalf("failed to read output directory: %v", err)
