@@ -22,7 +22,7 @@ Helper templates for chart names and labels
 app.kubernetes.io/name: {{ include "wis2-ingest.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 app.kubernetes.io/component: {{ include "wis2-ingest.component" . }}
-app.kubernetes.io/version: {{ .Chart.AppVersion }}
+app.kubernetes.io/version: "{{ .Chart.AppVersion }}"
 app.kubernetes.io/managed-by: Helm
 {{- end -}}
 
