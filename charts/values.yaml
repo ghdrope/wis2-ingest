@@ -1,18 +1,19 @@
-replicaCount: 1
-
 image:
   repository: ghcr.io/ghdrope/wis2-ingest
   tag: "1.0"
   pullPolicy: Always
 
-env:
-  WIS2_MQTT_TOPIC: "origin/a/wis2/#"
-  WIS2_OUTPUT_DIRECTORY: "data"
+ingestor:
+  replicaCount: 1
 
-volume:
-  enabled: false
+  env:
+    WIS2_MQTT_TOPIC: "origin/a/wis2/#"
+    WIS2_OUTPUT_DIRECTORY: "data"
 
-securityContext:
-  enabled: false
+  volume:
+    enabled: false
 
-nfsMounts: {}
+  securityContext:
+    enabled: false
+
+  nfsMounts: {}
