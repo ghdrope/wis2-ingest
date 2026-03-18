@@ -1,8 +1,15 @@
 # WIS2 Ingest
 
+> WIS2 Data Ingest
+
 WIS2 Ingest is a lightweight command-line tool that consumes and persists data distributed through the WMO Information System 2.0 (WIS2). Its purpose is primarily to receive real-time data notifications and transforms them into locally accessible files.
 
 By continuously listening to configured data streams/topics, the ingestor automatically retrieves and stores relevant datasets in an organized directories structure (<YEAR>/<MONTH>/<DAY>/<HOUR>/<FILENAME>).
+
+## Quick Access
+
+[![Documentation](https://img.shields.io/badge/Documentation-white?plastic&logo=docusaurus&logoColor=blue&color=yellow&link=https%3A%2F%2Fwww.notion.so%2FSIMUStack-1f471badea8b80719cc8f94476e146a0%3Fpvs%3D4
+)](https://www.notion.so/WIS2-Ingest-32771badea8b80f399aed688c7788522?source=copy_link)
 
 ## Project Structure
 
