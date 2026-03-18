@@ -43,23 +43,26 @@ spec:
           volumeMounts:
             {{- range $server, $paths := .Values.nfsMounts }}
               {{- range $path, $mountPaths := $paths }}
-                {{- $name := printf "%s-%s" $server $path | replace "/" "-" | trunc 63 }}
+                {{- $name := printf "%s-%s" $server $path | lower | replace "." "-" | replace "/" "-" | trimPrefix "-" | trimSuffix "-" | trunc 63 }}
                 {{- range $mountPath := $mountPaths }}
-            - name: {{ $name }}
-              mountPath: {{ $mountPath }}
+          - name: {{ $name }}
+            mountPath: {{ $mountPath }}
                 {{- end }}
               {{- end }}
             {{- end }}
           {{- end }}
+
       {{- if and .Values.volume.enabled .Values.nfsMounts }}
       volumes:
         {{- range $server, $paths := .Values.nfsMounts }}
           {{- range $path, $mountPaths := $paths }}
-            {{- $name := printf "%s-%s" $server $path | replace "/" "-" | trunc 63 }}
-        - name: {{ $name }}
-          nfs:
-            server: {{ $server }}
-            path: {{ $path }}
+            {{- $name := printf "%s-%s" $server $path | lower | replace "." "-" | replace "/" "-" | trimPrefix "-" | trimSuffix "-" | trunc 63 }}
+      - name: {{ $name }}
+        nfs:
+          server: {{ $server }}
+          path: {{ $path }}
+          readOnly: false
           {{- end }}
         {{- end }}
       {{- end }}
+      
