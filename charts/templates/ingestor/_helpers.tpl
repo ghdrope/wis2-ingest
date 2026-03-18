@@ -19,8 +19,8 @@ Helper templates for chart names and labels
 
 {{/* Common labels applied to all objects */}}
 {{- define "wis2-ingest.labels" -}}
-app.kubernetes.io/name: {{ include "wis2-ingest.name" . }}
-app.kubernetes.io/instance: {{ .Release.Name }}
+app.kubernetes.io/app: {{ include "wis2-ingest.name" . }}
+app.kubernetes.io/chart: {{ .Release.Name }}
 app.kubernetes.io/component: {{ include "wis2-ingest.component" . }}
 app.kubernetes.io/version: "{{ .Chart.AppVersion }}"
 app.kubernetes.io/managed-by: Helm
