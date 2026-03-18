@@ -4,6 +4,7 @@ import (
 	"wis2-ingest/internal/config"
 	"wis2-ingest/internal/filesystem"
 	"wis2-ingest/internal/mqtt"
+	"wis2-ingest/pkg/health"
 	"wis2-ingest/pkg/utils"
 
 	"github.com/akuity/kargo/pkg/logging"
@@ -53,6 +54,11 @@ func newIngestorCommand() *cobra.Command {
 			if err := mqttClient.ConnectAndSubscribe(cmd.Context()); err != nil {
 				return err
 			}
+
+			health.StartProbes(8080,
+				func() bool { return mqttClient.Connected() },
+				func() bool { return mqttClient.Connected() },
+			)
 
 			runtimeLogger.Info("MQTT client running. Waiting for messages...")
 

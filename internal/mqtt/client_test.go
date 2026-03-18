@@ -1,7 +1,8 @@
 package mqtt
 
 // Test Includes:
-// - TestNewClient                  : Verifies NewClient correctly initializes the Client struct.
+// - TestNewClient                  	: Verifies NewClient correctly initializes the Client struct.
+// - TestConnectedFlag simulates			: Connection state toggling.
 // - TestConnectAndSubscribe_Handlers : Verifies that ConnectAndSubscribe sets OnConnect and OnConnectionLost handlers.
 
 import (
@@ -40,6 +41,32 @@ func TestNewClient(t *testing.T) {
 	}
 	if client.client != nil {
 		t.Errorf("expected mqtt.Client to be nil before ConnectAndSubscribe")
+	}
+	if client.Connected() {
+		t.Errorf("expected connected to be false initially")
+	}
+}
+
+// TestConnectedFlag simulates connection state toggling.
+func TestConnectedFlag(t *testing.T) {
+	cfg := &config.IngestOptions{
+		Host:   "localhost",
+		Port:   "1883",
+		Topics: []string{"topic1"},
+	}
+	logger, _ := logging.NewLogger(logging.InfoLevel, logging.DefaultFormat)
+	client := NewClient(cfg, logger)
+
+	client.connected = false
+	client.Connected()
+	client.connected = true
+	if !client.Connected() {
+		t.Errorf("expected connected to be true after simulated connect")
+	}
+
+	client.connected = false
+	if client.Connected() {
+		t.Errorf("expected connected to be false after simulated connection lost")
 	}
 }
 
