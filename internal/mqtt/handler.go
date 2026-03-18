@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-	"time"
 
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 )
@@ -31,8 +30,6 @@ type Msg interface {
 // messageHandler processes incoming MQTT messages.
 // It downloads canonical .bufr files and stores them in a time-partitioned directory.
 func (c *Client) messageHandler(_ mqtt.Client, msg Msg) {
-	now := time.Now().UTC()
-
 	var payload Payload
 	if err := json.Unmarshal(msg.Payload(), &payload); err != nil {
 		c.logger.Error(err, "invalid JSON payload", "topic", msg.Topic())
@@ -40,13 +37,7 @@ func (c *Client) messageHandler(_ mqtt.Client, msg Msg) {
 	}
 
 	// Build target directory by UTC timestamp: YYYY/MM/DD/HH
-	dir := filepath.Join(
-		c.cfg.OutputDir,
-		now.Format("2006"), // year
-		now.Format("01"),   // month
-		now.Format("02"),   // day
-		now.Format("15"),   // hour
-	)
+	dir := filepath.Join(c.cfg.OutputDir)
 	if err := os.MkdirAll(dir, 0755); err != nil {
 		c.logger.Error(err, "failed to create directory", "dir", dir)
 		return
