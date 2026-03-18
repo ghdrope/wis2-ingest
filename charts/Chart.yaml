@@ -2,5 +2,5 @@ apiVersion: v2
 name: wis2-ingest
 description: Helm chart for deploying wis2-ingest
 type: application
-version: 2.0.3    # Change when new version of project charts 
+version: 2.0.4    # Change when new version of project charts 
 appVersion: "1.0" # Change when new minor of wis2-ingest

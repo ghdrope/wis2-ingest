@@ -28,6 +28,6 @@ app.kubernetes.io/managed-by: Helm
 
 {{/* Selector labels (used in Deployment spec.selector) */}}
 {{- define "wis2-ingest.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "wis2-ingest.name" . }}
+app.kubernetes.io/app: {{ include "wis2-ingest.name" . }}
 app.kubernetes.io/component: {{ include "wis2-ingest.component" . }}
 {{- end -}}
