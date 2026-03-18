@@ -34,7 +34,10 @@ func (c *Client) ConnectAndSubscribe(ctx context.Context) error {
 	opts := mqtt.NewClientOptions()
 	opts.AddBroker(broker)
 	opts.SetClientID(fmt.Sprintf("wis2-ingest-%d", time.Now().Unix()))
-	opts.SetTLSConfig(&tls.Config{MinVersion: tls.VersionTLS12, InsecureSkipVerify: true})
+	opts.SetTLSConfig(&tls.Config{
+		MinVersion: tls.VersionTLS12,
+		ServerName: c.cfg.Host,
+	})
 	opts.SetUsername(c.cfg.Username)
 	opts.SetPassword(c.cfg.Password)
 
