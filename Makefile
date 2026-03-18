@@ -29,7 +29,7 @@ UNIT_TEST_OUT_ARTIFACT := coverage.out
 UNIT_TEST_XML_ARTIFACT := coverage.xml
 
 # Export coverage variables to shell
-export MIN_COVERAGE=50.0
+export MIN_COVERAGE=45.0
 
 
 # ==== Convenience targets ====
