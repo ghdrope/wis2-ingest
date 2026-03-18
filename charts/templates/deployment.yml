@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: {{ include "wis2-ingest.fullname" . }}
   labels:
-    app: {{ include "wis2-ingest.labels" . | nindent 4 }}
+    app: {{ include "wis2-ingest.name" . }}
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
