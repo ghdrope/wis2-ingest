@@ -19,6 +19,7 @@ func newValidateCommand() *cobra.Command {
 		Use:   "validate",
 		Short: "Validate WIS2 configuration",
 		Long:  "Validates the WIS2 ingest configuration loaded from environment variables.",
+		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 
 			// Load configuration

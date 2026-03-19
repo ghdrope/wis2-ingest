@@ -26,6 +26,7 @@ func newDoctorCommand() *cobra.Command {
 		Use:   "doctor",
 		Short: "Check WIS2 ingest health",
 		Long:  "Performs health checks for WIS2 ingest.",
+		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 
 			// -------------------------------
