@@ -19,7 +19,5 @@ ENV PATH="/go/bin:${PATH}"
 # ---- COPY pre-built binary (CI/CD build job) ----
 COPY .bin/wis2-ingest /go/bin/wis2-ingest
 
-# ---- Execution permissions & record version inside container ----
-RUN chmod +x /go/bin/wis2-ingest \
-    && echo "Docker Image Version: ${VERSION}" > /opt/wis2-ingest.rev \
-    && chmod 666 /opt/wis2-ingest.rev
+# ---- Execution permissions ----
+RUN chmod +x /go/bin/wis2-ingest

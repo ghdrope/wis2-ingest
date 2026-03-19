@@ -3,7 +3,6 @@ package main
 import (
 	"wis2-ingest/internal/config"
 	"wis2-ingest/internal/mqtt"
-	"wis2-ingest/internal/revision"
 	"wis2-ingest/pkg/filesystem"
 	"wis2-ingest/pkg/health"
 	"wis2-ingest/pkg/utils"
@@ -38,14 +37,6 @@ func newIngestorCommand() *cobra.Command {
 
 			bootstrapLogger.Info("Configuration loaded")
 			bootstrapLogger.Info(cfg.PrintVerbose()) // Print all config fields dynamically
-
-			// Append runtime info
-			revFile := "/opt/wis2-ingest.rev"
-			if err := revision.AppendRuntimeInfo(revFile, cfg); err != nil {
-				bootstrapLogger.Error(err, "failed to append runtime info to revision file", "file", revFile)
-			} else {
-				bootstrapLogger.Info("Runtime configuration info appended to revision file", "file", revFile)
-			}
 
 			logLevel, logFormat := utils.GetLogVars()
 			runtimeLogger := logging.NewLoggerOrDie(logLevel, logFormat)
