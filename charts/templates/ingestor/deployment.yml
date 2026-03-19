@@ -40,6 +40,7 @@ spec:
           # Docker image, configurable via values.yaml
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: ["wis2-ingest"]
           args: ["ingestor"]
           env:
             # Environment variables, configurable via values.yaml
