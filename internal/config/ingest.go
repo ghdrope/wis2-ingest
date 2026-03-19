@@ -118,7 +118,7 @@ func (o *IngestOptions) PrintVerbose() string {
 			envName = field.Name
 		}
 		value := v.Field(i).Interface()
-		sb.WriteString(fmt.Sprintf("  %-20s : %v\n", envName, value))
+		fmt.Fprintf(&sb, "  %-20s : %v\n", envName, value)
 	}
 	return sb.String()
 }
