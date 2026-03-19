@@ -128,6 +128,7 @@ func splitAndTrim(s, sep string) []string {
 	parts := strings.Split(s, sep)
 	var result []string
 	for _, p := range parts {
+		p = strings.TrimSpace(p)
 		if p != "" {
 			result = append(result, p)
 		}
