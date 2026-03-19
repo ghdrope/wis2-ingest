@@ -31,16 +31,13 @@ func newIngestorCommand() *cobra.Command {
 
 			bootstrapLogger.Info("Starting WIS2 Ingest")
 
-			cfg := &config.IngestOptions{}
-
+			cfg := config.NewIngestOptions()
 			if err := cfg.Load(); err != nil {
 				return err
 			}
-			bootstrapLogger.Info("Configuration loaded",
-				"host", cfg.Host,
-				"port", cfg.Port,
-				"topics", cfg.Topics,
-				"output_dir", cfg.OutputDir)
+
+			bootstrapLogger.Info("Configuration loaded")
+			bootstrapLogger.Info(cfg.PrintVerbose()) // Print all config fields dynamically
 
 			// Append runtime info
 			revFile := "/opt/wis2-ingest.rev"

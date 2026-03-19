@@ -3,71 +3,134 @@ package config
 import (
 	"fmt"
 	"os"
+	"reflect"
 	"strings"
-
-	kargo_os "github.com/akuity/kargo/pkg/os"
 )
 
 // IngestOptions defines the configuration required for the WIS2 ingest process.
 //
-// The configuration is sourced from environment variables. Defaults are provided
-// for some values.
+// Optional fields have default values. Mandatory fields are enforced dynamically
+// via the `mandatory:"true"` struct tag.
 type IngestOptions struct {
-	Port     string
-	Username string
-	Password string
-	Host     string
+	Host     string `env:"WIS2_MQTT_HOST" mandatory:"false"`                      // MQTT broker host
+	Port     string `env:"WIS2_MQTT_PORT" mandatory:"false"`                      // MQTT broker port
+	Username string `env:"WIS2_MQTT_USERNAME" mandatory:"false"`                  // MQTT username
+	Password string `env:"WIS2_MQTT_PASSWORD" mandatory:"false" sensitive:"true"` // MQTT password
 
-	Topics    []string
-	OutputDir string
+	Topics    []string `env:"WIS2_MQTT_TOPIC" mandatory:"true"`       // MQTT topics (mandatory)
+	OutputDir string   `env:"WIS2_OUTPUT_DIRECTORY" mandatory:"true"` // Output directory (mandatory)
 }
 
-// NewIngestConfig initializes the ingest configuration.
-//
-// It loads configuration from environment variables and validates required values.
-// This method should be called during command startup before any ingest processing
-// begins.
+// NewIngestConfig returns a new IngestOptions struct with default values.
+func NewIngestOptions() *IngestOptions {
+	return &IngestOptions{
+		Host:     "globalbroker.meteo.fr",
+		Port:     "8883",
+		Username: "everyone",
+		Password: "everyone",
+	}
+}
+
+// Load reads environment variables, overrides defaults, and validates mandatory fields.
 func (o *IngestOptions) Load() error {
-	if err := o.load(); err != nil {
-		return err
+	v := reflect.ValueOf(o).Elem()
+	t := v.Type()
+
+	for i := 0; i < v.NumField(); i++ {
+		field := t.Field(i)
+		envName := field.Tag.Get("env")
+		if envName == "" {
+			envName = field.Name
+		}
+
+		val := os.Getenv(envName)
+		if val == "" {
+			continue // keep default
+		}
+
+		switch v.Field(i).Kind() {
+		case reflect.String:
+			v.Field(i).SetString(val)
+		case reflect.Slice:
+			v.Field(i).Set(reflect.ValueOf(splitAndTrim(val, ";")))
+		}
+	}
+
+	// Validate mandatory fields
+	if err := o.validate(); err != nil {
+		return fmt.Errorf("configuration validation failed: %w", err)
+	}
+
+	return nil
+}
+
+// validate checks that all mandatory fields are defined.
+func (o *IngestOptions) validate() error {
+	v := reflect.ValueOf(o).Elem()
+	t := v.Type()
+	var missing []string
+
+	for i := 0; i < v.NumField(); i++ {
+		field := t.Field(i)
+		mandatory := field.Tag.Get("mandatory")
+		if mandatory != "true" {
+			continue
+		}
+
+		envName := field.Tag.Get("env")
+		if envName == "" {
+			envName = field.Name
+		}
+
+		value := v.Field(i).Interface()
+		if v.Field(i).Kind() == reflect.String && strings.TrimSpace(value.(string)) == "" {
+			missing = append(missing, envName)
+		}
+		if v.Field(i).Kind() == reflect.Slice && len(value.([]string)) == 0 {
+			missing = append(missing, envName)
+		}
+	}
+
+	if len(missing) > 0 {
+		return fmt.Errorf("missing mandatory environment variables: %s", strings.Join(missing, ", "))
 	}
 	return nil
 }
 
-// newIngestConfig reads environment variables and populates the IngestOptions struct.
-//
-// The following environment variables are used:
-//
-//	WIS2_MQTT_HOST
-//	WIS2_MQTT_PORT
-//	WIS2_MQTT_USERNAME
-//	WIS2_MQTT_PASSWORD
-//	WIS2_MQTT_TOPIC
-//	WIS2_OUTPUT_DIRECTORY
-//
-// REMOTE_MQTT_TOPIC supports multiple topics separated by ';'.
-func (o *IngestOptions) load() error {
+// PrintVerbose prints all configuration fields and their current values.
+// The env tag is used for display.
+func (o *IngestOptions) PrintVerbose() string {
+	v := reflect.ValueOf(o).Elem()
+	t := v.Type()
 
-	// MQTT connection parameters
-	o.Port = kargo_os.GetEnv("WIS2_MQTT_PORT", "8883")
-	o.Username = kargo_os.GetEnv("WIS2_MQTT_USERNAME", "everyone")
-	o.Password = kargo_os.GetEnv("WIS2_MQTT_PASSWORD", "everyone")
-	o.Host = kargo_os.GetEnv("WIS2_MQTT_HOST", "globalbroker.meteo.fr")
+	var sb strings.Builder
+	sb.WriteString("Configuration values:\n")
+	for i := 0; i < v.NumField(); i++ {
+		field := t.Field(i)
 
-	// Topics are mandatory
-	topicStr := os.Getenv("WIS2_MQTT_TOPIC")
-	if topicStr == "" {
-		return fmt.Errorf("WIS2_MQTT_TOPIC must be defined")
+		// Skip sensitive fields
+		if field.Tag.Get("sensitive") == "true" {
+			continue
+		}
+
+		envName := field.Tag.Get("env")
+		if envName == "" {
+			envName = field.Name
+		}
+		value := v.Field(i).Interface()
+		sb.WriteString(fmt.Sprintf("  %-20s : %v\n", envName, value))
 	}
-	o.Topics = strings.Split(topicStr, ";")
-	for i := range o.Topics {
-		o.Topics[i] = strings.TrimSpace(o.Topics[i])
-	}
+	return sb.String()
+}
 
-	// OutputDir is mandatory
-	if o.OutputDir = os.Getenv("WIS2_OUTPUT_DIRECTORY"); o.OutputDir == "" {
-		return fmt.Errorf("WIS2_OUTPUT_DIRECTORY must be defined")
+// splitAndTrim splits a string by sep and trims whitespace.
+func splitAndTrim(s, sep string) []string {
+	parts := strings.Split(s, sep)
+	var result []string
+	for _, p := range parts {
+		if p != "" {
+			result = append(result, p)
+		}
 	}
-
-	return nil
+	return result
 }
