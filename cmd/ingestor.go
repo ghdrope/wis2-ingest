@@ -25,7 +25,8 @@ func newIngestorCommand() *cobra.Command {
 	bootstrapLogger := logging.NewLoggerOrDie(logging.InfoLevel, format)
 
 	cmd := &cobra.Command{
-		Use: "ingestor",
+		Use:  "ingestor",
+		Args: cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {
 
 			bootstrapLogger.Info("Starting WIS2 Ingest")

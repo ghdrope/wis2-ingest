@@ -14,6 +14,7 @@ var rootCmd = &cobra.Command{
 	Use:   "wis2",
 	Short: "WIS2 CLI",
 	Long:  `CLI for WIS2.`,
+	Args:  cobra.NoArgs,
 	Run: func(cmd *cobra.Command, args []string) {
 
 		// Display help when no subcommand is provided.

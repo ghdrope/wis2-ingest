@@ -19,6 +19,7 @@ func newVersionCommand() *cobra.Command {
 		Use:   "version",
 		Short: "Print version information",
 		Long:  "Displays version, git commit and build date information.",
+		Args:  cobra.NoArgs,
 		Run: func(cmd *cobra.Command, _ []string) {
 			if short {
 				fmt.Println(version.Short())
