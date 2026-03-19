@@ -1,9 +1,12 @@
 package filesystem
 
 // Test Includes:
-// - TestEnsureDirs_SingleDir       : Verifies a single directory is created.
-// - TestEnsureDirs_MultipleDirs    : Verifies multiple directories are created at once.
-// - TestEnsureDirs_ExistingDir     : Verifies function does not fail if directory already exists.
+// - TestEnsureDirs_SingleDir           : Verifies a single directory is created.
+// - TestEnsureDirs_MultipleDirs        : Verifies multiple directories are created at once.
+// - TestEnsureDirs_ExistingDir         : Verifies function does not fail if directory already exists.
+// - TestCheckDirWritable_Success       : Verifies a valid writable directory passes the check.
+// - TestCheckDirWritable_NotExist      : Verifies error when directory does not exist.
+// - TestCheckDirWritable_NotDirectory  : Verifies error when path is a file.
 
 import (
 	"os"
@@ -11,9 +14,9 @@ import (
 	"testing"
 )
 
-// TestEnsureDirs_SingleDir verifies that EnsureDirs creates a single directory.
+// TestEnsureDirs_SingleDir verifies a single directory is created.
 func TestEnsureDirs_SingleDir(t *testing.T) {
-	temp := t.TempDir() // Go provides a temporary test directory
+	temp := t.TempDir()
 	dirPath := filepath.Join(temp, "single")
 
 	err := EnsureDirs(dirPath)
@@ -31,7 +34,7 @@ func TestEnsureDirs_SingleDir(t *testing.T) {
 	}
 }
 
-// TestEnsureDirs_MultipleDirs verifies that EnsureDirs creates multiple directories.
+// TestEnsureDirs_MultipleDirs verifies multiple directories are created at once.
 func TestEnsureDirs_MultipleDirs(t *testing.T) {
 	temp := t.TempDir()
 	dir1 := filepath.Join(temp, "dir1")
@@ -54,20 +57,53 @@ func TestEnsureDirs_MultipleDirs(t *testing.T) {
 	}
 }
 
-// TestEnsureDirs_ExistingDir verifies that EnsureDirs does not fail if the directory already exists.
+// TestEnsureDirs_ExistingDir verifies function does not fail if directory already exists.
 func TestEnsureDirs_ExistingDir(t *testing.T) {
 	temp := t.TempDir()
 	dir := filepath.Join(temp, "existing")
 
-	// create dir first
 	err := os.MkdirAll(dir, 0755)
 	if err != nil {
 		t.Fatalf("setup failed: %v", err)
 	}
 
-	// call EnsureDirs on the same directory
 	err = EnsureDirs(dir)
 	if err != nil {
 		t.Fatalf("expected no error when directory already exists, got %v", err)
+	}
+}
+
+// TestCheckDirWritable_Success verifies a valid writable directory passes the check.
+func TestCheckDirWritable_Success(t *testing.T) {
+	temp := t.TempDir()
+
+	err := CheckDirWritable(temp)
+	if err != nil {
+		t.Fatalf("expected no error, got %v", err)
+	}
+}
+
+// TestCheckDirWritable_NotExist verifies error when directory does not exist.
+func TestCheckDirWritable_NotExist(t *testing.T) {
+	path := filepath.Join(os.TempDir(), "non-existent-dir-xyz")
+
+	err := CheckDirWritable(path)
+	if err == nil {
+		t.Fatal("expected error, got nil")
+	}
+}
+
+// TestCheckDirWritable_NotDirectory verifies error when path is a file.
+func TestCheckDirWritable_NotDirectory(t *testing.T) {
+	temp := t.TempDir()
+	file := filepath.Join(temp, "file.txt")
+
+	if err := os.WriteFile(file, []byte("test"), 0644); err != nil {
+		t.Fatalf("setup failed: %v", err)
+	}
+
+	err := CheckDirWritable(file)
+	if err == nil {
+		t.Fatal("expected error, got nil")
 	}
 }
