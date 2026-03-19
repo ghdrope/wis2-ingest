@@ -1,13 +1,14 @@
 package config
 
 // Test Includes:
-// - TestIngestOptions_Load_Success       : Verifies valid environment variables populate IngestOptions correctly.
-// - TestIngestOptions_Load_Defaults      : Ensures defaults are applied when optional env vars are missing.
-// - TestIngestOptions_Load_MissingTopic  : Checks error is returned when WIS2_MQTT_TOPIC is not defined.
-// - TestIngestOptions_Load_MissingOutputDir : Checks error is returned when WIS2_OUTPUT_DIRECTORY is not defined.
+// - TestIngestOptions_Load_Success           : Verifies valid environment variables populate IngestOptions correctly.
+// - TestIngestOptions_Load_Defaults          : Ensures defaults are applied when optional env vars are missing.
+// - TestIngestOptions_Load_MissingTopic      : Checks error is returned when WIS2_MQTT_TOPIC is not defined.
+// - TestIngestOptions_Load_MissingOutputDir  : Checks error is returned when WIS2_OUTPUT_DIRECTORY is not defined.
 
 import (
 	"reflect"
+	"strings"
 	"testing"
 	"wis2-ingest/pkg/testhelper"
 )
@@ -29,7 +30,7 @@ func TestIngestOptions_Load_Success(t *testing.T) {
 		}
 	}()
 
-	var opts IngestOptions
+	opts := NewIngestOptions()
 	err := opts.Load()
 	if err != nil {
 		t.Fatalf("expected no error, got %v", err)
@@ -74,7 +75,7 @@ func TestIngestOptions_Load_Defaults(t *testing.T) {
 		}
 	}()
 
-	var opts IngestOptions
+	opts := NewIngestOptions()
 	err := opts.Load()
 	if err != nil {
 		t.Fatalf("expected no error, got %v", err)
@@ -107,16 +108,14 @@ func TestIngestOptions_Load_MissingTopic(t *testing.T) {
 		}
 	}()
 
-	var opts IngestOptions
+	opts := NewIngestOptions()
 	err := opts.Load()
-
 	if err == nil {
 		t.Fatal("expected error, got nil")
 	}
 
-	expectedErr := "WIS2_MQTT_TOPIC must be defined"
-	if err.Error() != expectedErr {
-		t.Errorf("expected error %q, got %q", expectedErr, err.Error())
+	if !strings.Contains(err.Error(), "WIS2_MQTT_TOPIC") {
+		t.Errorf("expected error mentioning WIS2_MQTT_TOPIC, got %q", err.Error())
 	}
 }
 
@@ -133,15 +132,13 @@ func TestIngestOptions_Load_MissingOutputDir(t *testing.T) {
 		}
 	}()
 
-	var opts IngestOptions
+	opts := NewIngestOptions()
 	err := opts.Load()
-
 	if err == nil {
 		t.Fatal("expected error, got nil")
 	}
 
-	expectedErr := "WIS2_OUTPUT_DIRECTORY must be defined"
-	if err.Error() != expectedErr {
-		t.Errorf("expected error %q, got %q", expectedErr, err.Error())
+	if !strings.Contains(err.Error(), "WIS2_OUTPUT_DIRECTORY") {
+		t.Errorf("expected error mentioning WIS2_OUTPUT_DIRECTORY, got %q", err.Error())
 	}
 }

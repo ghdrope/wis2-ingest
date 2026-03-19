@@ -22,19 +22,14 @@ func newValidateCommand() *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 
 			// Load configuration
-			cfg := &config.IngestOptions{}
+			cfg := config.NewIngestOptions()
 			if err := cfg.Load(); err != nil {
 				return fmt.Errorf("failed to load configuration: %w", err)
 			}
 
-			// If verbose, print all config values
+			// Print all configuration fields dynamically if verbose
 			if verbose {
-				fmt.Println("Configuration values:")
-				fmt.Printf("  Host      : %s\n", cfg.Host)
-				fmt.Printf("  Port      : %s\n", cfg.Port)
-				fmt.Printf("  Topics    : %v\n", cfg.Topics)
-				fmt.Printf("  OutputDir : %s\n", cfg.OutputDir)
-				fmt.Printf("  Username  : %s\n", cfg.Username)
+				fmt.Print(cfg.PrintVerbose())
 			}
 
 			fmt.Println("✅ Configuration validation successful")

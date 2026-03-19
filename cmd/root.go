@@ -34,4 +34,5 @@ func init() {
 	rootCmd.AddCommand(newValidateCommand())
 	rootCmd.AddCommand(newIngestorCommand())
 	rootCmd.AddCommand(newVersionCommand())
+	rootCmd.AddCommand(newDoctorCommand())
 }
