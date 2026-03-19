@@ -24,6 +24,9 @@ jobs:
         with:
           fetch-depth: 1
 
+      - name: Set build date
+        run: echo "BUILD_DATE=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> $GITHUB_ENV
+
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
@@ -75,3 +78,5 @@ jobs:
           cache-to: type=gha, mode=max
           build-args: |
             VERSION=development
+            BUILD_DATE=${{ env.BUILD_DATE }}
+            GIT_COMMIT=${{ github.sha }}

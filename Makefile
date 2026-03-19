@@ -7,6 +7,7 @@ SHELL := /bin/bash
 # ==== Variables ====
 ARTIFACTS_DIR := $(PWD)/.reports/pipelines
 BIN_DIR := .bin
+BUILD_DATE ?= $(shell date -u +%Y-%m-%dT%H:%M:%SZ)
 CACHE_DIR := $(PWD)/.cache
 CI_DOCKER_IMAGES := \
 	alpine:3.23 \
@@ -19,17 +20,19 @@ CI_DOCKER_IMAGES_ALLOWLIST := \
 CI_VULN_REPORT_DIR := $(ARTIFACTS_DIR)/security/images
 CI_VULN_SCANNER := trivy
 CI_VULN_SEVERITIES := HIGH,CRITICAL
+GIT_COMMIT ?= $(shell git rev-parse HEAD)
 GOCACHE_DIR := go-build
 GOVULNCHECK_ARTIFACT := govulncheck-report.json
-PREFIX  ?= /usr/local
+PREFIX ?= /usr/local
 PROJECT_NAME := wis2-ingest
 SDLC_ARTIFACTS_DIR := SDLC
 SECURITY_ARTIFACTS_DIR := security
 UNIT_TEST_OUT_ARTIFACT := coverage.out
 UNIT_TEST_XML_ARTIFACT := coverage.xml
+VERSION ?= development
 
 # Export coverage variables to shell
-export MIN_COVERAGE=45.0
+export MIN_COVERAGE=50.0
 
 
 # ==== Convenience targets ====
@@ -159,7 +162,11 @@ build: ## Build a single component binary
 	\
 	go mod download && \
 	echo "🔨 Building binary" && \
-	go build -o "$(BIN_DIR)/$(PROJECT_NAME)" "$(PWD)/cmd"; \
+	go build -ldflags "\
+		-X 'wis2-ingest/pkg/version.Version=$(VERSION)' \
+		-X 'wis2-ingest/pkg/version.GitCommit=$(GIT_COMMIT)' \
+		-X 'wis2-ingest/pkg/version.BuildDate=$(BUILD_DATE)'" \
+		-o "$(BIN_DIR)/$(PROJECT_NAME)" "$(PWD)/cmd"; \
 	echo "✅ Build completed successfully"; \
 
 

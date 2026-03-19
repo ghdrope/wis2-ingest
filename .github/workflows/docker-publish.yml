@@ -20,16 +20,6 @@ jobs:
         with:
           fetch-depth: 1
 
-      - name: Set up Go
-        uses: actions/setup-go@v5
-        with:
-          go-version: 1.26
-          cache: true
-          cache-dependency-path: go.sum
-
-      - name: Build Go binary
-        run: make build
-
       - name: Prepare tags and metadata
         id: prep
         run: |
@@ -66,6 +56,16 @@ jobs:
           echo "TAGS=$TAGS" >> $GITHUB_OUTPUT
           echo "VERSION=$CLEAN_TAG" >> $GITHUB_ENV
           echo "BUILD_DATE=$BUILD_DATE" >> $GITHUB_ENV
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: 1.26
+          cache: true
+          cache-dependency-path: go.sum
+
+      - name: Build Go binary
+        run: make build
 
       - name: Generate OCI labels
         id: meta
@@ -110,3 +110,4 @@ jobs:
           build-args: |
             VERSION=${{ env.VERSION }}
             BUILD_DATE=${{ env.BUILD_DATE }}
+            GIT_COMMIT=${{ github.sha }}
