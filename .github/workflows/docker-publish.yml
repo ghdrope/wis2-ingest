@@ -2,17 +2,21 @@ name: Docker Publish
 
 on:
   push:
+    branches:
+      - '*.*.*-rc*'
     tags:
       - '*.*.*'
-      - '*.*.*-rc*'
 
 env:
   REGISTRY: ghcr.io
-  PLATFORMS: linux/amd64,linux/arm64
 
 jobs:
   docker-build-push:
     runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        arch: [amd64, arm64]
 
     steps:
       - name: Checkout code
@@ -25,7 +29,7 @@ jobs:
         run: |
           IMG_TAG=${GITHUB_REF_NAME}
 
-          # remove "v" prefix if existir
+          # Remove "v" prefix if exists
           CLEAN_TAG=${IMG_TAG#v}
 
           IMAGE=${{ env.REGISTRY }}/${{ github.repository }}
@@ -65,7 +69,16 @@ jobs:
           cache-dependency-path: go.sum
 
       - name: Build Go binary
-        run: make build
+        run: |
+          if [ "${{ matrix.arch }}" = "amd64" ]; then
+            export GOARCH=amd64
+          else
+            export GOARCH=arm64
+          fi
+
+          export GOOS=linux
+        
+          make build
 
       - name: Generate OCI labels
         id: meta
@@ -73,8 +86,8 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ github.repository }}
           labels: |
-            org.opencontainers.image.title=wis2-ingest
-            org.opencontainers.image.description=An image with wis2-ingest binary installed
+            org.opencontainers.image.title=${{ github.repository }}
+            org.opencontainers.image.description=An image with ${{ github.repository }} binary installed
             org.opencontainers.image.source=${{ github.repositoryUrl }}
             org.opencontainers.image.revision=${{ github.sha }}
             org.opencontainers.image.created=${{ env.BUILD_DATE }}
@@ -100,7 +113,7 @@ jobs:
           context: .
           file: Dockerfile
           push: true
-          platforms: ${{ env.PLATFORMS }}
+          platforms: linux/${{ matrix.arch }}
           tags: ${{ steps.prep.outputs.TAGS }}
           labels: ${{ steps.meta.outputs.labels }}
           provenance: false
@@ -111,3 +124,5 @@ jobs:
             VERSION=${{ env.VERSION }}
             BUILD_DATE=${{ env.BUILD_DATE }}
             GIT_COMMIT=${{ github.sha }}
+            GOARCH=${{ matrix.arch }}
+            GOOS=linux
