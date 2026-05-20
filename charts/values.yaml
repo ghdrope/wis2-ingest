@@ -1,6 +1,5 @@
 image:
   repository: ghcr.io/ghdrope/wis2-ingest
-  tag: "1.0"
   pullPolicy: Always
 
 ingestor:
