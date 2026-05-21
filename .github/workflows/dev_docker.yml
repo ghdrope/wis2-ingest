@@ -21,10 +21,6 @@ jobs:
   image_build-and-deploy:
     runs-on: ubuntu-latest
 
-    strategy:
-      matrix:
-        arch: [amd64, arm64]
-
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
@@ -42,16 +38,7 @@ jobs:
           cache-dependency-path: go.sum
 
       - name: Build Go binary
-        run: |
-          if [ "${{ matrix.arch }}" = "amd64" ]; then
-            export GOARCH=amd64
-          else
-            export GOARCH=arm64
-          fi
-
-          export GOOS=linux
-          
-          make build
+        run: make build
 
       - name: Generate image metadata
         id: metadata
@@ -88,7 +75,7 @@ jobs:
           context: .
           file: Dockerfile
           push: true
-          platforms: linux/${{ matrix.arch }}
+          platforms: linux/amd64,linux/arm64
           tags: ${{ steps.metadata.outputs.tags }}
           labels: ${{ steps.metadata.outputs.labels }}
           provenance: false
@@ -99,5 +86,3 @@ jobs:
             VERSION=development
             BUILD_DATE=${{ env.BUILD_DATE }}
             GIT_COMMIT=${{ github.sha }}
-            GOARCH=${{ matrix.arch }}
-            GOOS=linux
