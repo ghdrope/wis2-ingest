@@ -18,7 +18,6 @@ import (
 func TestIngestOptions_Load_Success(t *testing.T) {
 	cleanup := []func(){
 		testhelper.SetEnv("WIS2_MQTT_HOST", "test-host"),
-		testhelper.SetEnv("WIS2_MQTT_PORT", "1234"),
 		testhelper.SetEnv("WIS2_MQTT_USERNAME", "user"),
 		testhelper.SetEnv("WIS2_MQTT_PASSWORD", "pass"),
 		testhelper.SetEnv("WIS2_MQTT_TOPIC", "topic1; topic2 ;topic3"),
@@ -41,9 +40,6 @@ func TestIngestOptions_Load_Success(t *testing.T) {
 	if opts.Host != "test-host" {
 		t.Errorf("expected Host %q, got %q", "test-host", opts.Host)
 	}
-	if opts.Port != "1234" {
-		t.Errorf("expected Port %q, got %q", "1234", opts.Port)
-	}
 	if opts.Username != "user" {
 		t.Errorf("expected Username %q, got %q", "user", opts.Username)
 	}
@@ -63,7 +59,6 @@ func TestIngestOptions_Load_Success(t *testing.T) {
 func TestIngestOptions_Load_Defaults(t *testing.T) {
 	cleanup := []func(){
 		testhelper.UnsetEnv("WIS2_MQTT_HOST"),
-		testhelper.UnsetEnv("WIS2_MQTT_PORT"),
 		testhelper.UnsetEnv("WIS2_MQTT_USERNAME"),
 		testhelper.UnsetEnv("WIS2_MQTT_PASSWORD"),
 		testhelper.SetEnv("WIS2_MQTT_TOPIC", "topic"),
@@ -83,9 +78,6 @@ func TestIngestOptions_Load_Defaults(t *testing.T) {
 
 	if opts.Host != "globalbroker.meteo.fr" {
 		t.Errorf("expected default Host, got %q", opts.Host)
-	}
-	if opts.Port != "8883" {
-		t.Errorf("expected default Port, got %q", opts.Port)
 	}
 	if opts.Username != "everyone" {
 		t.Errorf("expected default Username, got %q", opts.Username)
