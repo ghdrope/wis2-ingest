@@ -30,7 +30,7 @@ func NewClient(cfg *config.IngestOptions, logger *logging.Logger) *Client {
 // ConnectAndSubscribe connects to the MQTT broker and subscribes to configured topics.
 // It handles automatic reconnects and logs all connection events.
 func (c *Client) ConnectAndSubscribe(ctx context.Context) error {
-	broker := fmt.Sprintf("tls://%s:%s", c.cfg.Host, c.cfg.Port)
+	broker := fmt.Sprintf("tls://%s:8883", c.cfg.Host)
 	opts := mqtt.NewClientOptions()
 	opts.AddBroker(broker)
 	opts.SetClientID(fmt.Sprintf("wis2-ingest-%d", time.Now().Unix()))

@@ -13,7 +13,6 @@ import (
 // via the `mandatory:"true"` struct tag.
 type IngestOptions struct {
 	Host     string `env:"WIS2_MQTT_HOST" mandatory:"false"`                      // MQTT broker host
-	Port     string `env:"WIS2_MQTT_PORT" mandatory:"false"`                      // MQTT broker port
 	Username string `env:"WIS2_MQTT_USERNAME" mandatory:"false"`                  // MQTT username
 	Password string `env:"WIS2_MQTT_PASSWORD" mandatory:"false" sensitive:"true"` // MQTT password
 
@@ -25,7 +24,6 @@ type IngestOptions struct {
 func NewIngestOptions() *IngestOptions {
 	return &IngestOptions{
 		Host:     "globalbroker.meteo.fr",
-		Port:     "8883",
 		Username: "everyone",
 		Password: "everyone",
 	}

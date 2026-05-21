@@ -47,8 +47,6 @@ spec:
             # Optional
             - name: WIS2_MQTT_HOST
               value: '{{ .Values.ingestor.env.WIS2_MQTT_HOST | default "globalbroker.meteo.fr" }}'
-            - name: WIS2_MQTT_PORT
-              value: '{{ .Values.ingestor.env.WIS2_MQTT_PORT | default "8883" }}'
             - name: WIS2_MQTT_USERNAME
               value: '{{ .Values.ingestor.env.WIS2_MQTT_USERNAME | default "everyone" }}'
             - name: WIS2_MQTT_PASSWORD
