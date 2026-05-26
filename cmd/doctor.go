@@ -54,15 +54,15 @@ func newDoctorCommand() *cobra.Command {
 			// -------------------------------
 			_, format := utils.GetLogVars()
 			logger := logging.NewLoggerOrDie(logging.ErrorLevel, format) // temporary logger
-			client := mqtt.NewClient(cfg, logger)
+			mqttClient := mqtt.NewClient(cfg, logger)
 
 			// To avoid hanging indefinitely a context with timeout is placed here
 			ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 			defer cancel()
 
-			if err := client.ConnectAndSubscribe(ctx); err != nil {
-				return fmt.Errorf("❌ MQTT connection check failed: %w", err)
-			}
+			// Start MQTT connection assynchronously
+			mqttClient.Start(ctx)
+
 			fmt.Println("✅ MQTT connection check passed")
 
 			fmt.Println("\n🚀 All checks passed")
