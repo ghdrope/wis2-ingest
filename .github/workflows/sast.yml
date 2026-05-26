@@ -31,6 +31,9 @@ on:
       - 'go.sum'
       - 'Docker/**/*'
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
 # TODO -> Public repository
   codeql-analysis:
@@ -44,6 +47,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
       
       - name: Set up Go
         uses: actions/setup-go@v5
@@ -70,6 +75,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
 
       - name: Set up Go
         uses: actions/setup-go@v5
@@ -98,6 +105,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
 
       - name: Install Trivy
         run: |
