@@ -2,6 +2,7 @@ package main
 
 import (
 	"os"
+	"wis2-ingest/pkg/utils"
 
 	"github.com/akuity/kargo/pkg/logging"
 	"sigs.k8s.io/controller-runtime/pkg/manager/signals"
@@ -12,6 +13,10 @@ func main() {
 	ctx := signals.SetupSignalHandler()
 
 	// Execute the CLI root command.
+	if utils.IsDebug() {
+		logging.LoggerFromContext(ctx).Info("🐛 DEBUG MODE ENABLED")
+	}
+
 	if err := Execute(ctx); err != nil {
 		logging.LoggerFromContext(ctx).Error(err, "")
 		os.Exit(1)

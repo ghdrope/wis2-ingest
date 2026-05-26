@@ -51,7 +51,7 @@ Example:
 
 ```bash
 export WIS2_MQTT_TOPIC="origin/a/wis2/#"
-export WIS2_OUTPUT_DIRECTORY="data"
+export WIS2_OUTPUT_DIRECTORY="/tmp/wis2-ingest"
 ```
 
 ## Usage
