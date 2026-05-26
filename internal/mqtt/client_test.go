@@ -19,7 +19,6 @@ import (
 func TestNewClient(t *testing.T) {
 	cfg := &config.IngestOptions{
 		Host:      "localhost",
-		Port:      "8883",
 		Username:  "user",
 		Password:  "pass",
 		Topics:    []string{"topic1", "topic2"},
@@ -51,20 +50,19 @@ func TestNewClient(t *testing.T) {
 func TestConnectedFlag(t *testing.T) {
 	cfg := &config.IngestOptions{
 		Host:   "localhost",
-		Port:   "1883",
 		Topics: []string{"topic1"},
 	}
 	logger, _ := logging.NewLogger(logging.InfoLevel, logging.DefaultFormat)
 	client := NewClient(cfg, logger)
 
-	client.connected = false
+	client.connected.Store(false)
 	client.Connected()
-	client.connected = true
+	client.connected.Store(true)
 	if !client.Connected() {
 		t.Errorf("expected connected to be true after simulated connect")
 	}
 
-	client.connected = false
+	client.connected.Store(false)
 	if client.Connected() {
 		t.Errorf("expected connected to be false after simulated connection lost")
 	}
@@ -76,7 +74,7 @@ func TestConnectedFlag(t *testing.T) {
 func TestConnectAndSubscribe_Handlers(t *testing.T) {
 	// Create MQTT client options directly for testing
 	opts := mqtt.NewClientOptions()
-	opts.AddBroker("tcp://localhost:1883")
+	opts.AddBroker("tcp://localhost:8883")
 
 	// Assign dummy handlers to simulate ConnectAndSubscribe behavior
 	opts.OnConnect = func(c mqtt.Client) {}

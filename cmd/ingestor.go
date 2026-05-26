@@ -32,6 +32,7 @@ func newIngestorCommand() *cobra.Command {
 			bootstrapLogger.Info("Starting WIS2 Ingest")
 
 			cfg := config.NewIngestOptions()
+
 			if err := cfg.Load(); err != nil {
 				return err
 			}
@@ -40,28 +41,28 @@ func newIngestorCommand() *cobra.Command {
 			bootstrapLogger.Info(cfg.PrintVerbose()) // Print all config fields dynamically
 
 			logLevel, logFormat := utils.GetLogVars()
+
 			runtimeLogger := logging.NewLoggerOrDie(logLevel, logFormat)
 
 			if err := filesystem.EnsureDirs(cfg.OutputDir); err != nil {
 				return err
 			}
-			runtimeLogger.Info("Output directory created",
-				"output_dir", cfg.OutputDir)
+			runtimeLogger.Info(
+				"Output directory created",
+				"output_dir", cfg.OutputDir,
+			)
 
 			mqttClient := mqtt.NewClient(cfg, runtimeLogger)
-			if err := mqttClient.ConnectAndSubscribe(cmd.Context()); err != nil {
-				return err
-			}
 
-			health.StartProbes(8080,
-				func() bool { return mqttClient.Connected() },
-				func() bool { return mqttClient.Connected() },
-			)
+			// Start MQTT connection assynchronously
+			mqttClient.Start(cmd.Context())
+
+			// K8s probes
+			health.Start(mqttClient)
 
 			runtimeLogger.Info("MQTT client running. Waiting for messages...")
 
-			ctx := cmd.Context()
-			<-ctx.Done()
+			<-cmd.Context().Done()
 
 			runtimeLogger.Info("Shutting down WIS2 Ingest...")
 

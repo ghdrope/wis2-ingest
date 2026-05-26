@@ -35,8 +35,6 @@ Optional:
 
 - WIS2_MQTT_HOST – MQTT broker host (default: globalbroker.meteo.fr)
 
-- WIS2_MQTT_PORT – MQTT broker port (default: 8883)
-
 - WIS2_MQTT_USERNAME – MQTT username (default: everyone)
 
 - WIS2_MQTT_PASSWORD – MQTT password (default: everyone)
@@ -53,7 +51,7 @@ Example:
 
 ```bash
 export WIS2_MQTT_TOPIC="origin/a/wis2/#"
-export WIS2_OUTPUT_DIRECTORY="data"
+export WIS2_OUTPUT_DIRECTORY="/tmp/wis2-ingest"
 ```
 
 ## Usage
@@ -80,9 +78,7 @@ A Helm chart is provided under the `charts/` directory for deployment in a Kuber
 Basic example:
 
 ```bash
-helm install wis2-ingest ./charts \
-  --set env.WIS2_MQTT_TOPIC="origin/a/wis2/#" \
-  --set env.WIS2_OUTPUT_DIRECTORY="data"
+helm install wis2-ingest ./charts
 ```
 
 This deploys the ingest service as a container that continuously consumes and stores data inside the cluster.

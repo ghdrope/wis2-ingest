@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/tls"
 	"fmt"
+	"sync/atomic"
 	"time"
 	"wis2-ingest/internal/config"
 
@@ -13,10 +14,11 @@ import (
 
 // Client wraps an MQTT client and associated configuration and logger.
 type Client struct {
-	cfg       *config.IngestOptions
-	logger    *logging.Logger
-	client    mqtt.Client
-	connected bool
+	cfg    *config.IngestOptions
+	logger *logging.Logger
+	client mqtt.Client
+
+	connected atomic.Bool
 }
 
 // NewClient creates a new MQTT client instance with the given configuration and logger.
@@ -27,19 +29,26 @@ func NewClient(cfg *config.IngestOptions, logger *logging.Logger) *Client {
 	}
 }
 
-// ConnectAndSubscribe connects to the MQTT broker and subscribes to configured topics.
+// Start executes the initialization loop as an asynchronous operation.
+// Relevant for non-blocking the K8s workload probes.
+func (c *Client) Start(ctx context.Context) {
+	go c.connectLoop(ctx)
+}
+
+// connectLoop connects to the MQTT broker and subscribes to configured topics.
 // It handles automatic reconnects and logs all connection events.
-func (c *Client) ConnectAndSubscribe(ctx context.Context) error {
-	broker := fmt.Sprintf("tls://%s:%s", c.cfg.Host, c.cfg.Port)
-	opts := mqtt.NewClientOptions()
-	opts.AddBroker(broker)
-	opts.SetClientID(fmt.Sprintf("wis2-ingest-%d", time.Now().Unix()))
-	opts.SetTLSConfig(&tls.Config{
-		MinVersion: tls.VersionTLS12,
-		ServerName: c.cfg.Host,
-	})
-	opts.SetUsername(c.cfg.Username)
-	opts.SetPassword(c.cfg.Password)
+func (c *Client) connectLoop(ctx context.Context) {
+	broker := fmt.Sprintf("tls://%s:8883", c.cfg.Host)
+
+	opts := mqtt.NewClientOptions().
+		AddBroker(broker).
+		SetClientID(fmt.Sprintf("wis2-ingest-%d", time.Now().Unix())).
+		SetTLSConfig(&tls.Config{
+			MinVersion: tls.VersionTLS12,
+			ServerName: c.cfg.Host,
+		}).
+		SetUsername(c.cfg.Username).
+		SetPassword(c.cfg.Password)
 
 	opts.SetAutoReconnect(true)
 	opts.SetConnectRetry(true)
@@ -48,13 +57,18 @@ func (c *Client) ConnectAndSubscribe(ctx context.Context) error {
 	// OnConnect subscribes to all configured topics
 	opts.OnConnect = func(client mqtt.Client) {
 		c.logger.Info("Connected to MQTT broker")
-		c.connected = true
+
+		c.connected.Store(true)
+
 		for _, t := range c.cfg.Topics {
+
 			handler := func(cl mqtt.Client, msg mqtt.Message) {
 				c.messageHandler(cl, msg)
 			}
+
 			token := client.Subscribe(t, 1, handler)
 			token.Wait()
+
 			if token.Error() != nil {
 				c.logger.Error(token.Error(), "Subscribe error", "topic", t)
 			} else {
@@ -65,24 +79,40 @@ func (c *Client) ConnectAndSubscribe(ctx context.Context) error {
 
 	// OnConnectionLost logs the error
 	opts.OnConnectionLost = func(client mqtt.Client, err error) {
-		c.logger.Error(err, "Connection lost")
-		c.connected = false
+		c.logger.Error(err, "MQTT connection lost")
+
+		c.connected.Store(false)
 	}
 
 	c.client = mqtt.NewClient(opts)
 
-	// Attempt connection
-	token := c.client.Connect()
-	token.Wait()
-	if err := token.Error(); err != nil {
-		return fmt.Errorf("failed to connect to broker: %w", err)
-	}
+	for {
 
-	c.logger.Info("MQTT client initialized successfully")
-	return nil
+		select {
+		case <-ctx.Done():
+			c.logger.Info("Stopping MQTT connect loop")
+			return
+
+		default:
+		}
+
+		// Attempt connection
+		token := c.client.Connect()
+		token.Wait()
+
+		if err := token.Error(); err != nil {
+			c.logger.Error(err, "MQTT connect failed")
+			time.Sleep(5 * time.Second)
+			continue
+		}
+
+		c.logger.Info("MQTT client initialized successfully")
+
+		return
+	}
 }
 
 // Connected returns true if the MQTT client is currently connected.
 func (c *Client) Connected() bool {
-	return c.connected
+	return c.connected.Load()
 }

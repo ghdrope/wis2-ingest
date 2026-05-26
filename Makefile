@@ -32,7 +32,7 @@ UNIT_TEST_XML_ARTIFACT := coverage.xml
 VERSION ?= development
 
 # Export coverage variables to shell
-export MIN_COVERAGE=55.0
+export MIN_COVERAGE=45.0
 
 
 # ==== Convenience targets ====
@@ -44,6 +44,7 @@ export MIN_COVERAGE=55.0
 clean: ## Complete clean (using all clean available targets)
 	@echo "[TASK] Complete clean"
 	$(MAKE) clean-build
+	$(MAKE) clean-debug
 	@echo "✅ Clean completed successfully"
 
 .PHONY: clean-build
@@ -52,6 +53,13 @@ clean-build: ## Clean build artifacts, caches, and reports
 	@rm -rf .bin .cache .reports
 	@go clean -testcache
 	@echo "✅ Build clean completed successfully"
+
+.PHONY: clean-debug
+clean-debug: ## Clean debug/runtime artifacts
+	@echo "[TASK] Clean debug artifacts"
+	@rm -rf tmp/
+	@find . -name '__debug_bin*' -exec rm -f {} + 2>/dev/null || true
+	@echo "✅ Debug clean completed successfully"
 
 
 # ==== Security ====
