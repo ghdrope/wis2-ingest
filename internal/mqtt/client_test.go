@@ -55,14 +55,14 @@ func TestConnectedFlag(t *testing.T) {
 	logger, _ := logging.NewLogger(logging.InfoLevel, logging.DefaultFormat)
 	client := NewClient(cfg, logger)
 
-	client.connected = false
+	client.connected.Store(false)
 	client.Connected()
-	client.connected = true
+	client.connected.Store(true)
 	if !client.Connected() {
 		t.Errorf("expected connected to be true after simulated connect")
 	}
 
-	client.connected = false
+	client.connected.Store(false)
 	if client.Connected() {
 		t.Errorf("expected connected to be false after simulated connection lost")
 	}
