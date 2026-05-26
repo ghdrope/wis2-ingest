@@ -1,0 +1,80 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "WIS2 Ingestor",
+      "type": "go",
+      "request": "launch",
+      "mode": "auto",
+      "program": "${workspaceFolder}/cmd",
+      "args": ["ingestor"],
+      "env": {
+        "DEBUG": "true",
+        "LOG_LEVEL": "debug",
+        "LOG_FORMAT": "console",
+
+        "WIS2_MQTT_TOPIC": "origin/a/wis2/#",
+        "WIS2_OUTPUT_DIRECTORY": "./tmp/debug_data",
+      },
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal"
+    },
+
+    {
+      "name": "WIS2 Doctor",
+      "type": "go",
+      "request": "launch",
+      "mode": "auto",
+      "program": "${workspaceFolder}/cmd",
+      "args": ["doctor"],
+      "env": {
+        "DEBUG": "true",
+        "LOG_LEVEL": "debug",
+        "LOG_FORMAT": "console",
+
+        "WIS2_MQTT_TOPIC": "origin/a/wis2/#",
+        "WIS2_OUTPUT_DIRECTORY": "./tmp/debug_data",
+      },
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal"
+    },
+
+    {
+      "name": "WIS2 Validate",
+      "type": "go",
+      "request": "launch",
+      "mode": "auto",
+      "program": "${workspaceFolder}/cmd",
+      "args": ["validate"],
+      "env": {
+        "DEBUG": "true",
+        "LOG_LEVEL": "debug",
+        "LOG_FORMAT": "console",
+
+        "WIS2_MQTT_TOPIC": "origin/a/wis2/#",
+        "WIS2_OUTPUT_DIRECTORY": "./tmp/debug_data",
+      },
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal",
+    },
+
+    {
+      "name": "WIS2 Version",
+      "type": "go",
+      "request": "launch",
+      "mode": "auto",
+      "program": "${workspaceFolder}/cmd",
+      "args": ["version"],
+      "env": {
+        "DEBUG": "true",
+        "LOG_LEVEL": "debug",
+        "LOG_FORMAT": "console",
+
+        "WIS2_MQTT_TOPIC": "origin/a/wis2/#",
+        "WIS2_OUTPUT_DIRECTORY": "./tmp/debug_data",
+      },
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal",
+    }
+  ]
+}

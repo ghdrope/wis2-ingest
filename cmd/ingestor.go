@@ -58,12 +58,7 @@ func newIngestorCommand() *cobra.Command {
 			mqttClient.Start(cmd.Context())
 
 			// K8s probes
-			health.StartProbes(
-				8080, // port
-
-				func() bool { return true },                   // liveness
-				func() bool { return mqttClient.Connected() }, // readiness
-			)
+			health.Start(mqttClient)
 
 			runtimeLogger.Info("MQTT client running. Waiting for messages...")
 
