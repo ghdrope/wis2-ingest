@@ -1,4 +1,4 @@
-# ==== Utility-style Makefile for S4P2 Project ====
+# ==== Utility-style Makefile ====
 
 # Use bash for all systems consistency
 SHELL := /bin/bash
@@ -22,6 +22,7 @@ GIT_COMMIT ?= $(shell git rev-parse HEAD)
 GOCACHE_DIR := go-build
 GOVULNCHECK_ARTIFACT := govulncheck-report.json
 PREFIX ?= /usr/local
+# Must match GitHub repository name
 PROJECT_NAME := wis2-ingest
 SDLC_ARTIFACTS_DIR := SDLC
 SECURITY_ARTIFACTS_DIR := security
@@ -120,7 +121,7 @@ format-check: ## Check code formatting
 	@echo "[TASK] Checking code formatting"
 	@if [ -n "$$(gofmt -l .)" ]; then \
 		echo "❌ Formatting issues found:"; \
-		gofmt -l ./wis2-ingest; \
+		gofmt -l ./$(PROJECT_NAME); \
 		exit 1; \
 	else \
 		echo "✅ Code formatting is correct"; \
@@ -154,7 +155,7 @@ helm-template: ## Render helm templates to validate YAML
 		echo "❌ Helm is not installed"; \
 		exit 1; \
 	fi
-	@helm template wis2-ingest charts/ > /dev/null
+	@helm template $(PROJECT_NAME) charts/ > /dev/null
 	@echo "✅ Helm templates render successfully"
 
 
@@ -169,9 +170,9 @@ build: ## Build a single component binary
 	go mod download && \
 	echo "🔨 Building binary" && \
 	go build -ldflags "\
-		-X 'wis2-ingest/pkg/version.Version=$(VERSION)' \
-		-X 'wis2-ingest/pkg/version.GitCommit=$(GIT_COMMIT)' \
-		-X 'wis2-ingest/pkg/version.BuildDate=$(BUILD_DATE)'" \
+		-X 'github.com/ghdrope/go-version.Version=$(VERSION)' \
+		-X 'github.com/ghdrope/go-version.GitCommit=$(GIT_COMMIT)' \
+		-X 'github.com/ghdrope/go-version.BuildDate=$(BUILD_DATE)'" \
 		-o "$(BIN_DIR)/$(PROJECT_NAME)" "$(PWD)/cmd"; \
 	echo "✅ Build completed successfully"; \
 
@@ -182,14 +183,14 @@ test-unit: build ## Run unit tests with coverage enforcement
 	@echo "[TASK] Running unit tests"
 	@mkdir -p "$(ARTIFACTS_DIR)/$(SDLC_ARTIFACTS_DIR)"
 
-	PACKAGES=$$(go list ./internal/... ./pkg/... | grep -v '/tests' | grep -v 'testhelper' | grep -v '^wis2-ingest/$$') && \
+	PACKAGES=$$(go list ./internal/... ./pkg/... | grep -v '/tests' | grep -v 'testhelper' | grep -v '^$(PROJECT_NAME)/$$') && \
 	echo "$$PACKAGES" && \
 	\
 	COVERAGE_MIN=$$MIN_COVERAGE; \
 	\
-	go test -v -coverprofile="$(ARTIFACTS_DIR)/$(SDLC_ARTIFACTS_DIR)/wis2-ingest-$(UNIT_TEST_OUT_ARTIFACT)" $$PACKAGES && \
+	go test -v -coverprofile="$(ARTIFACTS_DIR)/$(SDLC_ARTIFACTS_DIR)/$(PROJECT_NAME)-$(UNIT_TEST_OUT_ARTIFACT)" $$PACKAGES && \
 	\
-	COVERAGE_ACTUAL=$$(go tool cover -func="$(ARTIFACTS_DIR)/$(SDLC_ARTIFACTS_DIR)/wis2-ingest-$(UNIT_TEST_OUT_ARTIFACT)" | grep total: | awk '{print substr($$3,1,length($$3)-1)}') && \
+	COVERAGE_ACTUAL=$$(go tool cover -func="$(ARTIFACTS_DIR)/$(SDLC_ARTIFACTS_DIR)/$(PROJECT_NAME)-$(UNIT_TEST_OUT_ARTIFACT)" | grep total: | awk '{print substr($$3,1,length($$3)-1)}') && \
 	if awk "BEGIN {exit !($$COVERAGE_ACTUAL >= $$COVERAGE_MIN)}"; then \
 		echo "📊 Total Coverage $$COVERAGE_ACTUAL% >= Minimum Coverage $$COVERAGE_MIN%"; \
 	else \
@@ -198,8 +199,8 @@ test-unit: build ## Run unit tests with coverage enforcement
 	fi && \
 	\
 	if command -v gocover-cobertura >/dev/null 2>&1; then \
-		gocover-cobertura < "$(ARTIFACTS_DIR)/$(SDLC_ARTIFACTS_DIR)/wis2-ingest-$(UNIT_TEST_OUT_ARTIFACT)" > "$(ARTIFACTS_DIR)/$(SDLC_ARTIFACTS_DIR)/wis2-ingest-$(UNIT_TEST_XML_ARTIFACT)" && \
-		echo "📝 Cobertura report generated: '$(ARTIFACTS_DIR)/$(SDLC_ARTIFACTS_DIR)/wis2-ingest-$(UNIT_TEST_XML_ARTIFACT)'"; \
+		gocover-cobertura < "$(ARTIFACTS_DIR)/$(SDLC_ARTIFACTS_DIR)/$(PROJECT_NAME)-$(UNIT_TEST_OUT_ARTIFACT)" > "$(ARTIFACTS_DIR)/$(SDLC_ARTIFACTS_DIR)/$(PROJECT_NAME)-$(UNIT_TEST_XML_ARTIFACT)" && \
+		echo "📝 Cobertura report generated: '$(ARTIFACTS_DIR)/$(SDLC_ARTIFACTS_DIR)/$(PROJECT_NAME)-$(UNIT_TEST_XML_ARTIFACT)'"; \
 	else \
 		echo "⚠️ gocover-cobertura not found, skipping Cobertura report"; \
 	fi 
