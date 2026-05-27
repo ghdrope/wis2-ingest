@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-	"wis2-ingest/pkg/version"
 
+	version "github.com/ghdrope/go-version"
 	"github.com/spf13/cobra"
 )
 
