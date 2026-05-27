@@ -4,6 +4,7 @@ go 1.26.3
 
 require (
 	github.com/eclipse/paho.mqtt.golang v1.5.1
+	github.com/ghdrope/go-version v0.0.1
 	github.com/spf13/cobra v1.10.2
 	sigs.k8s.io/controller-runtime v0.23.3
 )
