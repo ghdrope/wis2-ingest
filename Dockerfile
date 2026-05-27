@@ -1,5 +1,7 @@
 FROM debian:trixie-backports
 
+# Must match GitHub repository name
+ARG PROJECT_NAME="wis2-ingest"
 ARG VERSION
 ENV VERSION=${VERSION}
 
@@ -17,7 +19,7 @@ RUN mkdir -p /go/bin
 ENV PATH="/go/bin:${PATH}"
 
 # ---- COPY pre-built binary (CI/CD build job) ----
-COPY .bin/wis2-ingest /go/bin/wis2-ingest
+COPY .bin/${PROJECT_NAME} /go/bin/${PROJECT_NAME}
 
 # ---- Execution permissions ----
-RUN chmod +x /go/bin/wis2-ingest
+RUN chmod +x /go/bin/${PROJECT_NAME}
