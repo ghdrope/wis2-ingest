@@ -11,22 +11,6 @@ By continuously listening to configured data streams/topics, the ingestor automa
 [![Documentation](https://img.shields.io/badge/Documentation-white?plastic&logo=docusaurus&logoColor=blue&color=yellow&link=https%3A%2F%2Fwww.notion.so%2FSIMUStack-1f471badea8b80719cc8f94476e146a0%3Fpvs%3D4
 )](https://www.notion.so/WIS2-Ingest-32771badea8b80f399aed688c7788522?source=copy_link)
 
-## Project Structure
-
-```txt
-cmd/        - CLI entrypoints and command definitions
-internal/   - Core application logic
-pkg/        - Shared utilities
-go.mod      - Go module definition and dependencies
-
-Makefile    - Build and development commands
-.github/    - CI/CD workflows and repository automation (GitHub Actions)
-
-Dockerfile  - Container image definition
-
-charts/     - Helm charts for deployment in Kubernetes environments
-```
-
 ## Setup
 
 To run WIS2 Ingest, you only need to configure a few environmnet variables:
