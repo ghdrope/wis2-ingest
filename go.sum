@@ -7,8 +7,6 @@ github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc h1:U9qPSI2PIWSS1
 github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/eclipse/paho.mqtt.golang v1.5.1 h1:/VSOv3oDLlpqR2Epjn1Q7b2bSTplJIeV2ISgCl2W7nE=
 github.com/eclipse/paho.mqtt.golang v1.5.1/go.mod h1:1/yJCneuyOoCOzKSsOTUc0AJfpsItBGWvYpBLimhArU=
-github.com/ghdrope/go-version v0.0.0-20260527115849-fd498b34b130 h1:7ywuCQRXYTXM1sWYLcz1NUSByso6S9fI+wphmbcrvto=
-github.com/ghdrope/go-version v0.0.0-20260527115849-fd498b34b130/go.mod h1:KFGDI0P+35bIdLXeRy6spC43NsSmkAoL99luU3EjDmU=
 github.com/ghdrope/go-version v0.0.1 h1://xaEq2gdqf+6R2W6Br9vxNxhZzyY2MFH5N0LZapTmY=
 github.com/ghdrope/go-version v0.0.1/go.mod h1:KFGDI0P+35bIdLXeRy6spC43NsSmkAoL99luU3EjDmU=
 github.com/go-logr/logr v1.4.3 h1:CjnDlHq8ikf6E492q6eKboGOC0T8CDaOvkHCIg8idEI=
