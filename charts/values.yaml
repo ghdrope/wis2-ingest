@@ -1,6 +1,7 @@
 image:
   repository: ghcr.io/ghdrope/wis2-ingest
   pullPolicy: Always
+  tag: ""
 
 ingestor:
   replicaCount: 1

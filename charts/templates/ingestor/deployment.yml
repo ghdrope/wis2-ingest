@@ -38,7 +38,7 @@ spec:
       containers:
         - name: wis2-ingest
           # Docker image, configurable via values.yaml
-          image: '{{ .Values.image.repository }}:{{ .Chart.AppVersion }}'
+          image: "{{ .Values.image.repository }}:{{ default .Chart.AppVersion .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           command: ["wis2-ingest"]
           args: ["ingestor"]
