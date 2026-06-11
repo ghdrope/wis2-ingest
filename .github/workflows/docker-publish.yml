@@ -15,10 +15,6 @@ jobs:
   docker-build-push:
     runs-on: ubuntu-latest
 
-    strategy:
-      matrix:
-        arch: [amd64, arm64]
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -62,25 +58,6 @@ jobs:
           echo "VERSION=$CLEAN_TAG" >> $GITHUB_ENV
           echo "BUILD_DATE=$BUILD_DATE" >> $GITHUB_ENV
 
-      - name: Set up Go
-        uses: actions/setup-go@v5
-        with:
-          go-version: 1.26
-          cache: true
-          cache-dependency-path: go.sum
-
-      - name: Build Go binary
-        run: |
-          if [ "${{ matrix.arch }}" = "amd64" ]; then
-            export GOARCH=amd64
-          else
-            export GOARCH=arm64
-          fi
-
-          export GOOS=linux
-        
-          make build
-
       - name: Generate OCI labels
         id: meta
         uses: docker/metadata-action@v5
@@ -114,7 +91,7 @@ jobs:
           context: .
           file: Dockerfile
           push: true
-          platforms: linux/${{ matrix.arch }}
+          platforms: linux/amd64,linux/arm64
           tags: ${{ steps.prep.outputs.TAGS }}
           labels: ${{ steps.meta.outputs.labels }}
           provenance: false
@@ -125,5 +102,4 @@ jobs:
             VERSION=${{ env.VERSION }}
             BUILD_DATE=${{ env.BUILD_DATE }}
             GIT_COMMIT=${{ github.sha }}
-            GOARCH=${{ matrix.arch }}
-            GOOS=linux
+            
