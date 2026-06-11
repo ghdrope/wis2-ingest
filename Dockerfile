@@ -5,6 +5,8 @@ ARG TARGETARCH
 
 # Must match GitHub repository name
 ARG PROJECT_NAME="wis2-ingest"
+ARG BUILD_DATE
+ARG GIT_COMMIT
 ARG VERSION
 ENV VERSION=${VERSION}
 
