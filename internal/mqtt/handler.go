@@ -1,11 +1,13 @@
 package mqtt
 
 import (
+	"context"
 	"encoding/json"
 	"io"
 	"net/http"
 	"os"
 	"path/filepath"
+	"time"
 
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 )
@@ -30,9 +32,16 @@ type Msg interface {
 // messageHandler processes incoming MQTT messages.
 // It downloads canonical .bufr files and stores them in a time-partitioned directory.
 func (c *Client) messageHandler(_ mqtt.Client, msg Msg) {
+
+	start := time.Now()
+	topic := msg.Topic()
+	ctx := context.Background()
+
 	var payload Payload
+
 	if err := json.Unmarshal(msg.Payload(), &payload); err != nil {
 		c.logger.Error(err, "invalid JSON payload", "topic", msg.Topic())
+		c.metrics.IncFailure(ctx, topic)
 		return
 	}
 
@@ -40,6 +49,7 @@ func (c *Client) messageHandler(_ mqtt.Client, msg Msg) {
 	dir := filepath.Join(c.cfg.OutputDir)
 	if err := os.MkdirAll(dir, 0755); err != nil {
 		c.logger.Error(err, "failed to create directory", "dir", dir)
+		c.metrics.IncFailure(ctx, topic)
 		return
 	}
 
@@ -67,6 +77,7 @@ func (c *Client) messageHandler(_ mqtt.Client, msg Msg) {
 		resp, err := http.Get(link.Href)
 		if err != nil {
 			c.logger.Error(err, "failed to download href", "href", link.Href)
+			c.metrics.IncFailure(ctx, topic)
 			continue
 		}
 
@@ -77,6 +88,7 @@ func (c *Client) messageHandler(_ mqtt.Client, msg Msg) {
 			if cerr := resp.Body.Close(); cerr != nil {
 				c.logger.Error(cerr, "failed to close HTTP response body")
 			}
+			c.metrics.IncFailure(ctx, topic)
 			continue
 		}
 
@@ -89,8 +101,12 @@ func (c *Client) messageHandler(_ mqtt.Client, msg Msg) {
 		}
 		if err != nil {
 			c.logger.Error(err, "failed writing file", "file", outPath)
+			c.metrics.IncFailure(ctx, topic)
 			continue
 		}
+
+		c.metrics.IncSuccess(ctx, topic)
+		c.metrics.ObserveLatency(ctx, topic, start)
 
 		c.logger.Info("bufr file stored", "file", outPath, "topic", msg.Topic())
 	}
