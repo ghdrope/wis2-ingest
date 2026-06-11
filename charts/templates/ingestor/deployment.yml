@@ -58,6 +58,10 @@ spec:
             - name: WIS2_OUTPUT_DIRECTORY
               value: "{{ .Values.ingestor.env.WIS2_OUTPUT_DIRECTORY }}"
 
+          # Resources tuning
+          resources:
+            {{- toYaml .Values.ingestor.resources | nindent 12 }}
+
           # Readiness & Liveness via HTTP endpoints
           readinessProbe:
             httpGet:
@@ -75,10 +79,10 @@ spec:
             periodSeconds: 10
             failureThreshold: 3
 
-          {{- if and .Values.ingestor.volume.enabled .Values.ingestor.nfsMounts }}
+          {{- if and .Values.ingestor.volume.enabled .Values.ingestor.volume.nfsMounts }}
           # Mount NFS volumes if enabled
           volumeMounts:
-            {{- range $server, $paths := .Values.ingestor.nfsMounts }}
+            {{- range $server, $paths := .Values.ingestor.volume.nfsMounts }}
               {{- range $path, $mountPaths := $paths }}
                 {{- $name := printf "%s-%s" $server $path | lower | replace "." "-" | replace "/" "-" | trimPrefix "-" | trimSuffix "-" | trunc 63 }}
                 {{- range $mountPath := $mountPaths }}
@@ -89,10 +93,10 @@ spec:
             {{- end }}
           {{- end }}
 
-      {{- if and .Values.ingestor.volume.enabled .Values.ingestor.nfsMounts }}
+      {{- if and .Values.ingestor.volume.enabled .Values.ingestor.volume.nfsMounts }}
       # Define NFS volumes for the container
       volumes:
-        {{- range $server, $paths := .Values.ingestor.nfsMounts }}
+        {{- range $server, $paths := .Values.ingestor.volume.nfsMounts }}
           {{- range $path, $mountPaths := $paths }}
             {{- $name := printf "%s-%s" $server $path | lower | replace "." "-" | replace "/" "-" | trimPrefix "-" | trimSuffix "-" | trunc 63 }}
       - name: {{ $name }}
