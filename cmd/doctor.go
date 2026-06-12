@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 	"wis2-ingest/internal/config"
+	"wis2-ingest/internal/metrics"
 	"wis2-ingest/internal/mqtt"
 	"wis2-ingest/pkg/filesystem"
 	"wis2-ingest/pkg/utils"
@@ -54,7 +55,14 @@ func newDoctorCommand() *cobra.Command {
 			// -------------------------------
 			_, format := utils.GetLogVars()
 			logger := logging.NewLoggerOrDie(logging.ErrorLevel, format) // temporary logger
-			mqttClient := mqtt.NewClient(cfg, logger)
+
+			// Metrics
+			metricsInstance, _, err := metrics.New("wis2-ingest-doctor")
+			if err != nil {
+				return err
+			}
+
+			mqttClient := mqtt.NewClient(cfg, logger, metricsInstance)
 
 			// To avoid hanging indefinitely a context with timeout is placed here
 			ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)

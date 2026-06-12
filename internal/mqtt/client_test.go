@@ -10,6 +10,7 @@ import (
 	"testing"
 	"time"
 	"wis2-ingest/internal/config"
+	"wis2-ingest/internal/metrics"
 
 	"github.com/akuity/kargo/pkg/logging"
 	mqtt "github.com/eclipse/paho.mqtt.golang"
@@ -29,8 +30,12 @@ func TestNewClient(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to create logger: %v", err)
 	}
+	metricsInstance, _, err := metrics.New("test")
+	if err != nil {
+		t.Fatalf("failed to create metrics: %v", err)
+	}
 
-	client := NewClient(cfg, logger)
+	client := NewClient(cfg, logger, metricsInstance)
 
 	if client.cfg != cfg {
 		t.Errorf("expected cfg to be set")
@@ -52,8 +57,16 @@ func TestConnectedFlag(t *testing.T) {
 		Host:   "localhost",
 		Topics: []string{"topic1"},
 	}
-	logger, _ := logging.NewLogger(logging.InfoLevel, logging.DefaultFormat)
-	client := NewClient(cfg, logger)
+	logger, err := logging.NewLogger(logging.InfoLevel, logging.DefaultFormat)
+	if err != nil {
+		t.Fatalf("failed to create logger: %v", err)
+	}
+	metricsInstance, _, err := metrics.New("test")
+	if err != nil {
+		t.Fatalf("failed to create metrics: %v", err)
+	}
+
+	client := NewClient(cfg, logger, metricsInstance)
 
 	client.connected.Store(false)
 	client.Connected()
