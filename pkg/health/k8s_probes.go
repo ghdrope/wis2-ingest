@@ -13,7 +13,7 @@ type ReadyFunc func() bool
 func Register(mux *http.ServeMux, mqttClient *mqtt.Client) {
 
 	// Readiness
-	var ready ReadyFunc = func() bool { return true }
+	var ready ReadyFunc = func() bool { return mqttClient.Connected() }
 
 	// Liveness
 	var live ReadyFunc = func() bool { return true }
