@@ -1,0 +1,97 @@
+{
+  "uid": "wis2-ingest",
+  "title": "WIS2 Ingest",
+  "timezone": "browser",
+  "schemaVersion": 38,
+  "version": 4,
+  "refresh": "10s",
+
+  "time": {
+    "from": "now-24h",
+    "to": "now"
+  },
+
+  "templating": {
+    "list": [
+      {
+        "name": "topic",
+        "type": "query",
+        "datasource": "Prometheus",
+        "query": "label_values(wis2_ingest_files_success_total, topic)",
+        "includeAll": true,
+        "allValue": ".*",
+        "multi": true,
+        "label": "Topic"
+      }
+    ]
+  },
+
+  "panels": [
+
+    {
+      "type": "stat",
+      "title": "Total Success (Selected Time Range)",
+      "gridPos": { "x": 0, "y": 0, "w": 8, "h": 5 },
+      "targets": [
+        { 
+          "expr": "round(delta(wis2_ingest_files_success_total{topic=~\"$topic\"}[$__range]))"
+        }
+      ]
+    },
+
+    {
+      "type": "stat",
+      "title": "Average Latency (Selected Time Range)",
+      "gridPos": { "x": 8, "y": 0, "w": 8, "h": 5 },
+      "targets": [
+        {
+          "expr": "sum(increase(wis2_ingest_latency_seconds_sum{topic=~\"$topic\"}[$__range])) / sum(increase(wis2_ingest_latency_seconds_count{topic=~\"$topic\"}[$__range]))"
+        }
+      ]
+    },
+
+    {
+      "type": "stat",
+      "title": "Total Failures (Selected Time Range)",
+      "gridPos": { "x": 16, "y": 0, "w": 8, "h": 5 },
+      "targets": [
+        {
+          "expr": "round(delta(wis2_ingest_files_failed_total{topic=~\"$topic\"}[$__range]))"
+        }
+      ]
+    },
+
+    {
+      "type": "timeseries",
+      "title": "Total Success Over Time",
+      "gridPos": { "x": 0, "y": 5, "w": 24, "h": 10 },
+      "targets": [
+        {
+          "expr": "sum by (topic) (wis2_ingest_files_success_total{topic=~\"$topic\"})"
+        }
+      ]
+    },
+
+    {
+      "type": "timeseries",
+      "title": "Latency Over Time",
+      "gridPos": { "x": 0, "y": 12, "w": 24, "h": 7 },
+      "targets": [
+        {
+          "expr": "sum(rate(wis2_ingest_latency_seconds_sum{topic=~\"$topic\"}[$__rate_interval])) / sum(rate(wis2_ingest_latency_seconds_count{topic=~\"$topic\"}[$__rate_interval]))"
+        }
+      ]
+    },
+
+    {
+      "type": "timeseries",
+      "title": "Total Failures Over Time",
+      "gridPos": { "x": 0, "y": 19, "w": 24, "h": 7 },
+      "targets": [
+        {
+          "expr": "sum by (topic) (wis2_ingest_files_failed_total{topic=~\"$topic\"})"
+        }
+      ]
+    }
+  ]
+}
