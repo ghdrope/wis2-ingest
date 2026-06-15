@@ -4,7 +4,7 @@
     {
       "label": "debug-up",
       "type": "shell",
-      "command": "docker compose -f docker-compose.debug.yaml up -d",
+      "command": "docker-compose -f docker-compose.debug.yaml up -d",
       "options": {
         "cwd": "${workspaceFolder}/hack/debug"
       },
@@ -14,7 +14,7 @@
     {
       "label": "debug-down",
       "type": "shell",
-      "command": "docker compose -f docker-compose.debug.yaml down",
+      "command": "docker-compose -f docker-compose.debug.yaml down",
       "options": {
         "cwd": "${workspaceFolder}/hack/debug"
       },
