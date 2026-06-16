@@ -10,6 +10,10 @@ ingestor:
     WIS2_MQTT_TOPIC: "origin/a/wis2/#"
     WIS2_OUTPUT_DIRECTORY: "data"
 
+  observability:
+    enabled: true
+    port: 8080
+
   securityContext:
     enabled: false
 
