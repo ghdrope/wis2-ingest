@@ -1,7 +1,10 @@
 package main
 
 import (
+	"net/http"
+	"os"
 	"wis2-ingest/internal/config"
+	"wis2-ingest/internal/metrics"
 	"wis2-ingest/internal/mqtt"
 	"wis2-ingest/pkg/filesystem"
 	"wis2-ingest/pkg/health"
@@ -32,7 +35,6 @@ func newIngestorCommand() *cobra.Command {
 			bootstrapLogger.Info("Starting WIS2 Ingest")
 
 			cfg := config.NewIngestOptions()
-
 			if err := cfg.Load(); err != nil {
 				return err
 			}
@@ -52,13 +54,45 @@ func newIngestorCommand() *cobra.Command {
 				"output_dir", cfg.OutputDir,
 			)
 
-			mqttClient := mqtt.NewClient(cfg, runtimeLogger)
+			mux := http.NewServeMux()
 
-			// Start MQTT connection assynchronously
-			mqttClient.Start(cmd.Context())
+			// Metrics
+			metricsInstance, metricsHandler, err := metrics.New("wis2-ingest")
+			if err != nil {
+				return err
+			}
+			mux.Handle("/metrics", metricsHandler)
 
-			// K8s probes
-			health.Start(mqttClient)
+			// MQTT
+			mqttClient := mqtt.NewClient(cfg, runtimeLogger, metricsInstance)
+			mqttClient.Start(cmd.Context()) // start asynchronously
+
+			// Health probes
+			health.Register(mux, mqttClient)
+
+			// Server
+			port := os.Getenv("PORT")
+			if port == "" {
+				port = "8080"
+			}
+			addr := ":" + port
+			server := &http.Server{
+				Addr:    addr,
+				Handler: mux,
+			}
+
+			// Server
+			go func() {
+				runtimeLogger.Info("http server running", "addr", addr)
+				if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+					runtimeLogger.Error(err, "http server failed")
+				}
+			}()
+			defer func() {
+				if err := server.Shutdown(cmd.Context()); err != nil {
+					runtimeLogger.Error(err, "http shutdown failed")
+				}
+			}()
 
 			runtimeLogger.Info("MQTT client running. Waiting for messages...")
 

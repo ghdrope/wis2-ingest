@@ -10,10 +10,21 @@ ingestor:
     WIS2_MQTT_TOPIC: "origin/a/wis2/#"
     WIS2_OUTPUT_DIRECTORY: "data"
 
-  volume:
-    enabled: false
+  observability:
+    enabled: true
+    port: 8080
 
   securityContext:
     enabled: false
 
-  nfsMounts: {}
+  volume:
+    enabled: false
+    nfsMounts: {}
+
+  resources:
+    requests:
+      cpu: "100m"
+      memory: "128Mi"
+    limits:
+      cpu: "500m"
+      memory: "512Mi"

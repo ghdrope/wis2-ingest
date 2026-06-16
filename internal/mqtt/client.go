@@ -7,6 +7,7 @@ import (
 	"sync/atomic"
 	"time"
 	"wis2-ingest/internal/config"
+	"wis2-ingest/internal/metrics"
 
 	"github.com/akuity/kargo/pkg/logging"
 	mqtt "github.com/eclipse/paho.mqtt.golang"
@@ -14,18 +15,24 @@ import (
 
 // Client wraps an MQTT client and associated configuration and logger.
 type Client struct {
-	cfg    *config.IngestOptions
-	logger *logging.Logger
-	client mqtt.Client
-
+	cfg       *config.IngestOptions
+	logger    *logging.Logger
+	client    mqtt.Client
 	connected atomic.Bool
+
+	metrics *metrics.Metrics
 }
 
 // NewClient creates a new MQTT client instance with the given configuration and logger.
-func NewClient(cfg *config.IngestOptions, logger *logging.Logger) *Client {
+func NewClient(cfg *config.IngestOptions, logger *logging.Logger, m *metrics.Metrics) *Client {
+	if m == nil {
+		logger.Info("metrics is nil - some observability will be disabled.")
+	}
+
 	return &Client{
-		cfg:    cfg,
-		logger: logger,
+		cfg:     cfg,
+		logger:  logger,
+		metrics: m,
 	}
 }
 
@@ -80,19 +87,16 @@ func (c *Client) connectLoop(ctx context.Context) {
 	// OnConnectionLost logs the error
 	opts.OnConnectionLost = func(client mqtt.Client, err error) {
 		c.logger.Error(err, "MQTT connection lost")
-
 		c.connected.Store(false)
 	}
 
 	c.client = mqtt.NewClient(opts)
 
 	for {
-
 		select {
 		case <-ctx.Done():
 			c.logger.Info("Stopping MQTT connect loop")
 			return
-
 		default:
 		}
 
@@ -107,7 +111,6 @@ func (c *Client) connectLoop(ctx context.Context) {
 		}
 
 		c.logger.Info("MQTT client initialized successfully")
-
 		return
 	}
 }

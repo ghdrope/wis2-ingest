@@ -45,6 +45,8 @@ spec:
           env:
             # Environment variables, configurable via values.yaml
             # Optional
+            - name: PORT
+              value: "{{ .Values.ingestor.observability.port }}"
             - name: WIS2_MQTT_HOST
               value: '{{ .Values.ingestor.env.WIS2_MQTT_HOST | default "globalbroker.meteo.fr" }}'
             - name: WIS2_MQTT_USERNAME
@@ -58,11 +60,20 @@ spec:
             - name: WIS2_OUTPUT_DIRECTORY
               value: "{{ .Values.ingestor.env.WIS2_OUTPUT_DIRECTORY }}"
 
+          # Observability expose
+          ports:
+            - name: http
+              containerPort: {{ .Values.ingestor.observability.port }}
+
+          # Resources tuning
+          resources:
+            {{- toYaml .Values.ingestor.resources | nindent 12 }}
+
           # Readiness & Liveness via HTTP endpoints
           readinessProbe:
             httpGet:
               path: /ready
-              port: 8080
+              port: http
             initialDelaySeconds: 5
             periodSeconds: 5
             failureThreshold: 3
@@ -70,15 +81,15 @@ spec:
           livenessProbe:
             httpGet:
               path: /live
-              port: 8080
+              port: http
             initialDelaySeconds: 10
             periodSeconds: 10
             failureThreshold: 3
 
-          {{- if and .Values.ingestor.volume.enabled .Values.ingestor.nfsMounts }}
+          {{- if and .Values.ingestor.volume.enabled .Values.ingestor.volume.nfsMounts }}
           # Mount NFS volumes if enabled
           volumeMounts:
-            {{- range $server, $paths := .Values.ingestor.nfsMounts }}
+            {{- range $server, $paths := .Values.ingestor.volume.nfsMounts }}
               {{- range $path, $mountPaths := $paths }}
                 {{- $name := printf "%s-%s" $server $path | lower | replace "." "-" | replace "/" "-" | trimPrefix "-" | trimSuffix "-" | trunc 63 }}
                 {{- range $mountPath := $mountPaths }}
@@ -89,10 +100,10 @@ spec:
             {{- end }}
           {{- end }}
 
-      {{- if and .Values.ingestor.volume.enabled .Values.ingestor.nfsMounts }}
+      {{- if and .Values.ingestor.volume.enabled .Values.ingestor.volume.nfsMounts }}
       # Define NFS volumes for the container
       volumes:
-        {{- range $server, $paths := .Values.ingestor.nfsMounts }}
+        {{- range $server, $paths := .Values.ingestor.volume.nfsMounts }}
           {{- range $path, $mountPaths := $paths }}
             {{- $name := printf "%s-%s" $server $path | lower | replace "." "-" | replace "/" "-" | trimPrefix "-" | trimSuffix "-" | trunc 63 }}
       - name: {{ $name }}
