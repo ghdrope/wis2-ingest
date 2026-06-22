@@ -7,7 +7,8 @@ ingestor:
   replicaCount: 1
 
   env:
-    WIS2_MQTT_TOPIC: "origin/a/wis2/#"
+    WIS2_MQTT_TOPIC:
+      - origin/a/wis2/#
     WIS2_OUTPUT_DIRECTORY: "data"
 
   observability:
