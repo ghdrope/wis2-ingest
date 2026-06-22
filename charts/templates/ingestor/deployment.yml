@@ -56,7 +56,7 @@ spec:
 
             # Required
             - name: WIS2_MQTT_TOPIC
-              value: "{{ .Values.ingestor.env.WIS2_MQTT_TOPIC }}"
+              value: {{ required "ingestor.env.WIS2_MQTT_TOPIC is required" (.Values.ingestor.env.WIS2_MQTT_TOPIC | join ";") | quote }}
             - name: WIS2_OUTPUT_DIRECTORY
               value: "{{ .Values.ingestor.env.WIS2_OUTPUT_DIRECTORY }}"
 
