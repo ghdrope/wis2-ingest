@@ -1,9 +1,5 @@
 package utils
 
-// Test Includes:
-// - TestGetLogVars              : Verifies GetLogVars parses env vars and applies defaults on invalid values.
-// - TestGetLogVars_Defaults     : Verifies default logging values are returned when env vars are unset.
-
 import (
 	"os"
 	"testing"

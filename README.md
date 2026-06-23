@@ -25,6 +25,8 @@ Optional:
 
 **Note**: The default credentials (`everyone` / `everyone`) are publicly shared within the WIS2 ecosystem and are intended for accessing open, non-restricted data streams. They are safe to use and do not grant access to secured or sensitive topics.
 
+- WIS2_AUTH_POLICIES_CONFIGMAP_PATH - Optional path to an auth-policies configuration file
+
 Mandatory:
 
 - `WIS2_MQTT_TOPIC` – MQTT topic(s) to subscribe to (required, ; separated)
@@ -36,6 +38,35 @@ Example:
 ```bash
 export WIS2_MQTT_TOPIC="origin/a/wis2/#"
 export WIS2_OUTPUT_DIRECTORY="/tmp/wis2-ingest"
+```
+
+## Auth Policies (Local Debug Only)
+
+When testing authentication policies locally, you need to define the expected YAML file:
+
+> hack/debug/auth-policies.yaml
+
+Example:
+
+```yaml
+authPolicies:
+  - name: <name>
+    topic: <topic>
+    username: <username>
+    password:
+      value: <password>
+```
+
+or using Kubernetes secrets:
+
+```yaml
+authPolicies:
+  - name: <name>
+    topic: <topic>
+    username: <username>
+    password:
+      secretName: <secretName>
+      secretKey: <secretKey>
 ```
 
 ## Usage

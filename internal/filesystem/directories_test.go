@@ -1,13 +1,5 @@
 package filesystem
 
-// Test Includes:
-// - TestEnsureDirs_SingleDir           : Verifies a single directory is created.
-// - TestEnsureDirs_MultipleDirs        : Verifies multiple directories are created at once.
-// - TestEnsureDirs_ExistingDir         : Verifies function does not fail if directory already exists.
-// - TestCheckDirWritable_Success       : Verifies a valid writable directory passes the check.
-// - TestCheckDirWritable_NotExist      : Verifies error when directory does not exist.
-// - TestCheckDirWritable_NotDirectory  : Verifies error when path is a file.
-
 import (
 	"os"
 	"path/filepath"

@@ -5,8 +5,8 @@ import (
 	"os"
 )
 
-// EnsureDirs creates directories if they do not already exist.
-// It accepts one or more paths and ensures each directory exists.
+// EnsureDirs ensures that all provided directory paths exist,
+// creating them when necessary.
 func EnsureDirs(paths ...string) error {
 	for _, p := range paths {
 		if err := os.MkdirAll(p, 0755); err != nil {
@@ -16,8 +16,8 @@ func EnsureDirs(paths ...string) error {
 	return nil
 }
 
-// CheckDirWritable verifies that the given path exists and is writable.
-// It does NOT create the directory. Returns error if not accessible.
+// CheckDirWritable verifies that a directory exists and that
+// files can be created within it.
 func CheckDirWritable(path string) error {
 	info, err := os.Stat(path)
 	if err != nil {
