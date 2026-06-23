@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"time"
 	"wis2-ingest/internal/config"
+	"wis2-ingest/internal/filesystem"
 	"wis2-ingest/internal/metrics"
 	"wis2-ingest/internal/mqtt"
-	"wis2-ingest/pkg/filesystem"
 	"wis2-ingest/pkg/utils"
 
 	"github.com/akuity/kargo/pkg/logging"

@@ -6,17 +6,22 @@ import (
 	"wis2-ingest/pkg/utils"
 )
 
-// ReadyFunc returns true if service is ready.
-type ReadyFunc func() bool
+// ProbeFunc reports whether a health probe succeeds.
+type ProbeFunc func() bool
 
-// Register adds health endpoints into the existing HTTP multiplexer, mux.
-func Register(mux *http.ServeMux, mqttClient *mqtt.Client) {
+// RegisterProbeHandlers registers HTTP liveness and readiness
+// endpoints on the provided ServeMux.
+func RegisterProbeHandlers(mux *http.ServeMux, mqttClient *mqtt.Client) {
 
 	// Readiness
-	var ready ReadyFunc = func() bool { return mqttClient.Connected() }
+	ready := func() bool {
+		return mqttClient.Connected()
+	}
 
 	// Liveness
-	var live ReadyFunc = func() bool { return true }
+	live := func() bool {
+		return true
+	}
 
 	if !utils.IsDebug() {
 		live = func() bool {

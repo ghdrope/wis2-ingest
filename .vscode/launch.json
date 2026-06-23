@@ -18,6 +18,8 @@
 
         "WIS2_MQTT_TOPIC": "origin/a/wis2/#",
         "WIS2_OUTPUT_DIRECTORY": "./tmp/debug_data",
+
+        "WIS2_AUTH_POLICIES_CONFIGMAP_PATH": "${workspaceFolder}/hack/debug/auth-policies.yaml",
       },
       "cwd": "${workspaceFolder}",
       "console": "integratedTerminal"

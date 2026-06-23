@@ -4,10 +4,10 @@ import (
 	"net/http"
 	"os"
 	"wis2-ingest/internal/config"
+	"wis2-ingest/internal/filesystem"
+	"wis2-ingest/internal/health"
 	"wis2-ingest/internal/metrics"
 	"wis2-ingest/internal/mqtt"
-	"wis2-ingest/pkg/filesystem"
-	"wis2-ingest/pkg/health"
 	"wis2-ingest/pkg/utils"
 
 	"github.com/akuity/kargo/pkg/logging"
@@ -68,7 +68,7 @@ func newIngestorCommand() *cobra.Command {
 			mqttClient.Start(cmd.Context()) // start asynchronously
 
 			// Health probes
-			health.Register(mux, mqttClient)
+			health.RegisterProbeHandlers(mux, mqttClient)
 
 			// Server
 			port := os.Getenv("PORT")
