@@ -1,0 +1,26 @@
+{{- if .Values.ingestor.authPolicies.enabled }}
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "wis2-ingest.fullname" . }}-auth-policies
+  labels:
+    {{- include "wis2-ingest.labels" . | nindent 4 }}
+
+data:
+  auth-policies-configmap.yaml: |
+    authPolicies:
+{{- if .Values.ingestor.authPolicies.policies }}
+{{- range .Values.ingestor.authPolicies.policies }}
+      - name: {{ .name }}
+        topic: {{ .topic }}
+        username: {{ .username }}
+        password:
+          secretName: {{ $.Values.global.authPolicies.secretName }}
+          secretKey: {{ .password.secretKey }}
+{{- end }}
+{{- else }}
+      []
+{{- end }}
+
+{{- end }}

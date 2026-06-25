@@ -9,29 +9,34 @@ metadata:
 spec:
   # Number of replicas, configurable via values.yaml
   replicas: {{ .Values.ingestor.replicaCount }}
+
   selector:
     matchLabels:
       # Selector must match pod template labels
       {{- include "wis2-ingest.selectorLabels" . | nindent 6 }}
+
   template:
     metadata:
       labels:
         {{- include "wis2-ingest.labels" . | nindent 8 }}
+
     spec:
+
       {{- if .Values.ingestor.securityContext.enabled }}
       # Pod-level security context: UID/GID, fsGroup, and supplemental groups
       securityContext:
-        {{- if .Values.ingestor.securityContext.runAsUser }}
-        runAsUser: {{ .Values.ingestor.securityContext.runAsUser | int }}
+        {{- with .Values.ingestor.securityContext.runAsUser }}
+        runAsUser: {{ . | int }}
         {{- end }}
-        {{- if .Values.ingestor.securityContext.runAsGroup }}
-        runAsGroup: {{ .Values.ingestor.securityContext.runAsGroup | int }}
+        {{- with .Values.ingestor.securityContext.runAsGroup }}
+        runAsGroup: {{ . | int }}
         {{- end }}
-        {{- if .Values.ingestor.securityContext.fsGroup }}
-        fsGroup: {{ .Values.ingestor.securityContext.fsGroup | int }}
+        {{- with .Values.ingestor.securityContext.fsGroup }}
+        fsGroup: {{ . | int }}
         {{- end }}
-        {{- if .Values.ingestor.securityContext.supplementalGroups }}
-        supplementalGroups: {{ toYaml .Values.ingestor.securityContext.supplementalGroups | nindent 8 }}
+        {{- with .Values.ingestor.securityContext.supplementalGroups }}
+        supplementalGroups:
+{{ toYaml . | nindent 10 }}
         {{- end }}
       {{- end }}
 
@@ -40,28 +45,37 @@ spec:
           # Docker image, configurable via values.yaml
           image: "{{ .Values.image.repository }}:{{ default .Chart.AppVersion .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+
           command: ["wis2-ingest"]
           args: ["ingestor"]
+
           env:
             # Environment variables, configurable via values.yaml
             # Optional
             - name: PORT
               value: "{{ .Values.ingestor.observability.port }}"
+
             - name: WIS2_MQTT_HOST
               value: '{{ .Values.ingestor.env.WIS2_MQTT_HOST | default "globalbroker.meteo.fr" }}'
+
             - name: WIS2_MQTT_USERNAME
               value: '{{ .Values.ingestor.env.WIS2_MQTT_USERNAME | default "everyone" }}'
+            
             - name: WIS2_MQTT_PASSWORD
               value: '{{ .Values.ingestor.env.WIS2_MQTT_PASSWORD | default "everyone" }}'
 
             # Required
             - name: WIS2_MQTT_TOPIC
               value: {{ required "ingestor.env.WIS2_MQTT_TOPIC is required" (.Values.ingestor.env.WIS2_MQTT_TOPIC | join ";") | quote }}
+            
             - name: WIS2_OUTPUT_DIRECTORY
               value: "{{ .Values.ingestor.env.WIS2_OUTPUT_DIRECTORY }}"
 
-          # Observability expose
+            - name: WIS2_AUTH_POLICIES_CONFIGMAP_PATH
+              value: "/etc/wis2-ingest/auth-policies-configmap.yaml"
+
           ports:
+            # Observability
             - name: http
               containerPort: {{ .Values.ingestor.observability.port }}
 
@@ -86,32 +100,52 @@ spec:
             periodSeconds: 10
             failureThreshold: 3
 
-          {{- if and .Values.ingestor.volume.enabled .Values.ingestor.volume.nfsMounts }}
-          # Mount NFS volumes if enabled
+          {{- if .Values.ingestor.volume.enabled }}
           volumeMounts:
+
+            {{- if .Values.ingestor.authPolicies.enabled }}
+            - name: {{ include "wis2-ingest.fullname" . }}-auth-policies
+              mountPath: /etc/wis2-ingest
+              readOnly: true
+            - name: {{ .Values.global.authPolicies.secretName }}
+              mountPath: /etc/wis2-ingest/{{ .Values.global.authPolicies.secretName }}
+              readOnly: true
+            {{- end }}
+
             {{- range $server, $paths := .Values.ingestor.volume.nfsMounts }}
               {{- range $path, $mountPaths := $paths }}
                 {{- $name := printf "%s-%s" $server $path | lower | replace "." "-" | replace "/" "-" | trimPrefix "-" | trimSuffix "-" | trunc 63 }}
                 {{- range $mountPath := $mountPaths }}
-          - name: {{ $name }}
-            mountPath: {{ $mountPath }}
+            - name: {{ $name }}
+              mountPath: {{ $mountPath }}
+                  {{- end }}
                 {{- end }}
               {{- end }}
-            {{- end }}
           {{- end }}
 
-      {{- if and .Values.ingestor.volume.enabled .Values.ingestor.volume.nfsMounts }}
+      {{- if .Values.ingestor.volume.enabled }}
       # Define NFS volumes for the container
       volumes:
+
+        {{- if .Values.ingestor.authPolicies.enabled }}
+        - name: {{ include "wis2-ingest.fullname" . }}-auth-policies
+          configMap:
+            name: {{ include "wis2-ingest.fullname" . }}-auth-policies
+        - name: {{ .Values.global.authPolicies.secretName }}
+          secret:
+            secretName: {{ .Values.global.authPolicies.secretName }}
+        {{- end }}
+        
         {{- range $server, $paths := .Values.ingestor.volume.nfsMounts }}
           {{- range $path, $mountPaths := $paths }}
             {{- $name := printf "%s-%s" $server $path | lower | replace "." "-" | replace "/" "-" | trimPrefix "-" | trimSuffix "-" | trunc 63 }}
-      - name: {{ $name }}
-        nfs:
-          server: {{ $server }}
-          path: {{ $path }}
-          readOnly: false
+        - name: {{ $name }}
+          nfs:
+            server: {{ $server }}
+            path: {{ $path }}
+            readOnly: false
           {{- end }}
         {{- end }}
+
       {{- end }}
       
