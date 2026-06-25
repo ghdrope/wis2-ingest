@@ -1,10 +1,5 @@
 package mqtt
 
-// Test Includes:
-// - TestNewClient                  	: Verifies NewClient correctly initializes the Client struct.
-// - TestConnectedFlag simulates			: Connection state toggling.
-// - TestConnectAndSubscribe_Handlers : Verifies that ConnectAndSubscribe sets OnConnect and OnConnectionLost handlers.
-
 import (
 	"context"
 	"testing"

@@ -1,25 +1,26 @@
 image:
-  repository: ghcr.io/ghdrope/wis2-ingest
   pullPolicy: Always
+  repository: ghcr.io/ghdrope/wis2-ingest
   tag: ""
 
-ingestor:
-  replicaCount: 1
+global:
+  authPolicies:
+    secretName: wis2-ingest-auth-policies-secrets
 
+ingestor:
+  authPolicies:
+    enabled: false
+    
   env:
-    WIS2_MQTT_TOPIC: "origin/a/wis2/#"
+    WIS2_MQTT_TOPIC:
+      - origin/a/wis2/#
     WIS2_OUTPUT_DIRECTORY: "data"
 
   observability:
     enabled: true
     port: 8080
 
-  securityContext:
-    enabled: false
-
-  volume:
-    enabled: false
-    nfsMounts: {}
+  replicaCount: 1
 
   resources:
     requests:
@@ -28,3 +29,10 @@ ingestor:
     limits:
       cpu: "500m"
       memory: "512Mi"
+
+  securityContext:
+    enabled: false
+
+  volume:
+    enabled: false
+    nfsMounts: {}

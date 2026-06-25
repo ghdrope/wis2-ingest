@@ -17,13 +17,15 @@ To run WIS2 Ingest, you only need to configure a few environmnet variables:
 
 Optional:
 
-- WIS2_MQTT_HOST – MQTT broker host (default: globalbroker.meteo.fr)
+- `WIS2_MQTT_HOST` – MQTT broker host (default: globalbroker.meteo.fr)
 
-- WIS2_MQTT_USERNAME – MQTT username (default: everyone)
+- `WIS2_MQTT_USERNAME` – MQTT username (default: everyone)
 
-- WIS2_MQTT_PASSWORD – MQTT password (default: everyone)
+- `WIS2_MQTT_PASSWORD` – MQTT password (default: everyone)
 
 **Note**: The default credentials (`everyone` / `everyone`) are publicly shared within the WIS2 ecosystem and are intended for accessing open, non-restricted data streams. They are safe to use and do not grant access to secured or sensitive topics.
+
+- `WIS2_AUTH_POLICIES_CONFIGMAP_PATH` - Optional path to an auth-policies configuration file
 
 Mandatory:
 
@@ -36,6 +38,23 @@ Example:
 ```bash
 export WIS2_MQTT_TOPIC="origin/a/wis2/#"
 export WIS2_OUTPUT_DIRECTORY="/tmp/wis2-ingest"
+```
+
+## Auth Policies (Local Debug Only)
+
+When testing authentication policies locally, you need to define the expected YAML file:
+
+> hack/debug/auth-policies.yaml
+
+Example:
+
+```yaml
+authPolicies:
+  - name: <name>
+    topic: <topic>
+    username: <username>
+    password:
+      value: <password>
 ```
 
 ## Usage
