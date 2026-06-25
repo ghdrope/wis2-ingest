@@ -17,15 +17,15 @@ To run WIS2 Ingest, you only need to configure a few environmnet variables:
 
 Optional:
 
-- WIS2_MQTT_HOST – MQTT broker host (default: globalbroker.meteo.fr)
+- `WIS2_MQTT_HOST` – MQTT broker host (default: globalbroker.meteo.fr)
 
-- WIS2_MQTT_USERNAME – MQTT username (default: everyone)
+- `WIS2_MQTT_USERNAME` – MQTT username (default: everyone)
 
-- WIS2_MQTT_PASSWORD – MQTT password (default: everyone)
+- `WIS2_MQTT_PASSWORD` – MQTT password (default: everyone)
 
 **Note**: The default credentials (`everyone` / `everyone`) are publicly shared within the WIS2 ecosystem and are intended for accessing open, non-restricted data streams. They are safe to use and do not grant access to secured or sensitive topics.
 
-- WIS2_AUTH_POLICIES_CONFIGMAP_PATH - Optional path to an auth-policies configuration file
+- `WIS2_AUTH_POLICIES_CONFIGMAP_PATH` - Optional path to an auth-policies configuration file
 
 Mandatory:
 
@@ -55,18 +55,6 @@ authPolicies:
     username: <username>
     password:
       value: <password>
-```
-
-or using Kubernetes secrets:
-
-```yaml
-authPolicies:
-  - name: <name>
-    topic: <topic>
-    username: <username>
-    password:
-      secretName: <secretName>
-      secretKey: <secretKey>
 ```
 
 ## Usage
