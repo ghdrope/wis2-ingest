@@ -1,0 +1,26 @@
+authPolicies:
+  - name: EUMS
+    topic: origin/a/wis2/de-dwd-gts-to-wis2/data/recommended/I/U/T/+/14/EUMS
+    username: eumetsat
+    password:
+      value: 'nb_FQ7-+L_i<5$FEhx55n$_2dR.u9&'
+  - name: KWSS
+    topic: origin/a/wis2/de-dwd-gts-to-wis2/data/recommended/I/U/T/+/14/KWSS
+    username: eumetsat
+    password:
+      value: 'nb_FQ7-+L_i<5$FEhx55n$_2dR.u9&'
+  - name: KWSP
+    topic: origin/a/wis2/de-dwd-gts-to-wis2/data/recommended/I/U/T/+/14/KWSP
+    username: eumetsat
+    password:
+      value: 'nb_FQ7-+L_i<5$FEhx55n$_2dR.u9&'
+  - name: EDZW
+    topic: origin/a/wis2/de-dwd-gts-to-wis2/data/recommended/I/U/T/+/14/EDZW
+    username: eumetsat
+    password:
+      value: 'nb_FQ7-+L_i<5$FEhx55n$_2dR.u9&'
+  - name: KWBC
+    topic: origin/a/wis2/de-dwd-gts-to-wis2/data/recommended/I/P/X/+/+/KWBC
+    username: eumetsat
+    password:
+      value: 'nb_FQ7-+L_i<5$FEhx55n$_2dR.u9&'
