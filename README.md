@@ -85,3 +85,4 @@ helm install wis2-ingest ./charts
 ```
 
 This deploys the ingest service as a container that continuously consumes and stores data inside the cluster.
+
