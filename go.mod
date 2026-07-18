@@ -33,7 +33,7 @@ require (
 )
 
 require (
-	github.com/akuity/kargo v1.10.8
+	github.com/akuity/kargo v1.10.9
 	github.com/go-logr/logr v1.4.3 // indirect
 	github.com/go-logr/zapr v1.3.0 // indirect
 	github.com/gorilla/websocket v1.5.4-0.20250319132907-e064f32e3674 // indirect
