@@ -108,7 +108,7 @@ func (p *Processor) processLink(
 		if err != nil {
 			p.client.logger.Error(
 				"failed to resolve authentication secret",
-				zap.Error(err),
+				zap.String("reason", "secret resolution failed"),
 				zap.String("policy", authPolicy.Name),
 			)
 
