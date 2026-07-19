@@ -8,10 +8,9 @@ import (
 	"wis2-ingest/internal/filesystem"
 	"wis2-ingest/internal/metrics"
 	"wis2-ingest/internal/mqtt"
-	"wis2-ingest/pkg/utils"
 
-	"github.com/akuity/kargo/pkg/logging"
 	"github.com/spf13/cobra"
+	"go.uber.org/zap"
 )
 
 // newDoctorCommand creates the "doctor" subcommand.
@@ -53,8 +52,6 @@ func newDoctorCommand() *cobra.Command {
 			// -------------------------------
 			// 3. Check MQTT connection
 			// -------------------------------
-			_, format := utils.GetLogVars()
-			logger := logging.NewLoggerOrDie(logging.ErrorLevel, format) // temporary logger
 
 			// Metrics
 			metricsInstance, _, err := metrics.New("wis2-ingest-doctor")
@@ -62,7 +59,7 @@ func newDoctorCommand() *cobra.Command {
 				return err
 			}
 
-			mqttClient := mqtt.NewClient(cfg, logger, metricsInstance)
+			mqttClient := mqtt.NewClient(cfg, zap.L(), metricsInstance)
 
 			// To avoid hanging indefinitely a context with timeout is placed here
 			ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)

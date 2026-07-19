@@ -5,7 +5,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"go.yaml.in/yaml/v2"
+	"sigs.k8s.io/yaml"
 )
 
 // SecretRef represents a secret that can be either:

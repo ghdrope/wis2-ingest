@@ -13,6 +13,8 @@ import (
 
 	"wis2-ingest/internal/config"
 	"wis2-ingest/internal/validate"
+
+	"go.uber.org/zap"
 )
 
 // Processor handles MQTT message processing pipeline:
@@ -36,7 +38,7 @@ func (p *Processor) Process(msg Msg) {
 	var payload Payload
 
 	if err := json.Unmarshal(msg.Payload(), &payload); err != nil {
-		p.client.logger.Error(err, "invalid JSON payload", "topic", topic)
+		p.client.logger.Error("invalid JSON payload", zap.Error(err), zap.String("topic", topic))
 		p.client.metrics.IncFailure(ctx, topic)
 		return
 	}
@@ -45,7 +47,7 @@ func (p *Processor) Process(msg Msg) {
 	outputDir := p.client.cfg.OutputDir
 
 	if err := os.MkdirAll(pendingDir, 0755); err != nil {
-		p.client.logger.Error(err, "failed to create pending directory", pendingDir)
+		p.client.logger.Error("failed to create pending directory", zap.Error(err), zap.String("dir", pendingDir))
 		p.client.metrics.IncFailure(ctx, topic)
 		return
 	}
@@ -96,7 +98,7 @@ func (p *Processor) processLink(
 
 	req, err := http.NewRequest(http.MethodGet, link.Href, nil)
 	if err != nil {
-		p.client.logger.Error(err, "failed to create request")
+		p.client.logger.Error("failed to create request", zap.Error(err))
 		return
 	}
 
@@ -105,9 +107,9 @@ func (p *Processor) processLink(
 		password, err := authPolicy.Password.ResolveValue()
 		if err != nil {
 			p.client.logger.Error(
-				err,
 				"failed to resolve authentication secret",
-				"policy", authPolicy.Name,
+				zap.String("reason", "secret resolution failed"),
+				zap.String("policy", authPolicy.Name),
 			)
 
 			p.client.metrics.IncFailure(ctx, topic)
@@ -122,7 +124,7 @@ func (p *Processor) processLink(
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		p.client.logger.Error(err, "download failed", "href", link.Href)
+		p.client.logger.Error("download failed", zap.Error(err), zap.String("href", link.Href))
 		p.client.metrics.IncFailure(ctx, topic)
 		return
 	}
@@ -132,7 +134,7 @@ func (p *Processor) processLink(
 	}()
 
 	if resp.StatusCode == http.StatusUnauthorized {
-		p.client.logger.Error(err, "authentication failed", "href", link.Href)
+		p.client.logger.Error("authentication failed", zap.Error(err), zap.String("href", link.Href))
 		p.client.metrics.IncFailure(ctx, topic)
 		return
 	}
@@ -142,7 +144,7 @@ func (p *Processor) processLink(
 	}
 
 	if err := p.client.saveToFile(tmpPath, resp.Body); err != nil {
-		p.client.logger.Error(err, "failed to store file", "file", tmpPath)
+		p.client.logger.Error("failed to store file", zap.Error(err), zap.String("file", tmpPath))
 		p.client.metrics.IncFailure(ctx, topic)
 		_ = os.Remove(tmpPath)
 		return
@@ -150,7 +152,7 @@ func (p *Processor) processLink(
 
 	if _, err := validate.IsBUFR(tmpPath); err != nil {
 
-		p.client.logger.Error(err, "invalid BUFR file", "file", tmpPath)
+		p.client.logger.Error("invalid BUFR file", zap.Error(err), zap.String("file", tmpPath))
 
 		_ = os.Remove(tmpPath)
 
@@ -160,9 +162,10 @@ func (p *Processor) processLink(
 
 	if err := os.Rename(tmpPath, finalPath); err != nil {
 
-		p.client.logger.Error(err, "failed to move file",
-			"source", tmpPath,
-			"dest", finalPath,
+		p.client.logger.Error("failed to move file",
+			zap.Error(err),
+			zap.String("source", tmpPath),
+			zap.String("dest", finalPath),
 		)
 
 		p.client.metrics.IncFailure(ctx, topic)
@@ -173,8 +176,8 @@ func (p *Processor) processLink(
 	p.client.metrics.ObserveLatency(ctx, topic, start)
 
 	p.client.logger.Info("stored file",
-		"file", finalPath,
-		"topic", topic,
+		zap.String("file", finalPath),
+		zap.String("topic", topic),
 	)
 }
 

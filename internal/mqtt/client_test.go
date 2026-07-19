@@ -7,8 +7,8 @@ import (
 	"wis2-ingest/internal/config"
 	"wis2-ingest/internal/metrics"
 
-	"github.com/akuity/kargo/pkg/logging"
 	mqtt "github.com/eclipse/paho.mqtt.golang"
+	"go.uber.org/zap"
 )
 
 // TestNewClient verifies that NewClient correctly initializes the Client struct.
@@ -21,10 +21,8 @@ func TestNewClient(t *testing.T) {
 		OutputDir: "/tmp",
 	}
 
-	logger, err := logging.NewLogger(logging.InfoLevel, logging.DefaultFormat)
-	if err != nil {
-		t.Fatalf("failed to create logger: %v", err)
-	}
+	logger := zap.NewNop()
+
 	metricsInstance, _, err := metrics.New("test")
 	if err != nil {
 		t.Fatalf("failed to create metrics: %v", err)
@@ -52,10 +50,9 @@ func TestConnectedFlag(t *testing.T) {
 		Host:   "localhost",
 		Topics: []string{"topic1"},
 	}
-	logger, err := logging.NewLogger(logging.InfoLevel, logging.DefaultFormat)
-	if err != nil {
-		t.Fatalf("failed to create logger: %v", err)
-	}
+
+	logger := zap.NewNop()
+
 	metricsInstance, _, err := metrics.New("test")
 	if err != nil {
 		t.Fatalf("failed to create metrics: %v", err)

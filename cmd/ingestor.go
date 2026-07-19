@@ -8,10 +8,9 @@ import (
 	"wis2-ingest/internal/health"
 	"wis2-ingest/internal/metrics"
 	"wis2-ingest/internal/mqtt"
-	"wis2-ingest/pkg/utils"
 
-	"github.com/akuity/kargo/pkg/logging"
 	"github.com/spf13/cobra"
+	"go.uber.org/zap"
 )
 
 // newIngestCommand creates the "ingest" subcommand.
@@ -21,38 +20,27 @@ import (
 // Configuration is loaded from environment variables via IngestOptions.
 func newIngestorCommand() *cobra.Command {
 
-	// During startup we enforce an info-level logger to ensure
-	// that important initialization messages are always visible.
-	_, format := utils.GetLogVars()
-
-	bootstrapLogger := logging.NewLoggerOrDie(logging.InfoLevel, format)
-
 	cmd := &cobra.Command{
 		Use:  "ingestor",
 		Args: cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {
 
-			bootstrapLogger.Info("Starting WIS2 Ingest")
+			logger := zap.L()
+
+			logger.Info("Starting WIS2 Ingest")
 
 			cfg := config.NewIngestOptions()
 			if err := cfg.Load(); err != nil {
 				return err
 			}
 
-			bootstrapLogger.Info("Configuration loaded")
-			bootstrapLogger.Info(cfg.PrintVerbose()) // Print all config fields dynamically
-
-			logLevel, logFormat := utils.GetLogVars()
-
-			runtimeLogger := logging.NewLoggerOrDie(logLevel, logFormat)
+			logger.Info("Configuration loaded")
+			logger.Info(cfg.PrintVerbose())
 
 			if err := filesystem.EnsureDirs(cfg.OutputDir); err != nil {
 				return err
 			}
-			runtimeLogger.Info(
-				"Output directory created",
-				"output_dir", cfg.OutputDir,
-			)
+			logger.Info("Output directory created", zap.String("output_dir", cfg.OutputDir))
 
 			mux := http.NewServeMux()
 
@@ -64,7 +52,7 @@ func newIngestorCommand() *cobra.Command {
 			mux.Handle("/metrics", metricsHandler)
 
 			// MQTT
-			mqttClient := mqtt.NewClient(cfg, runtimeLogger, metricsInstance)
+			mqttClient := mqtt.NewClient(cfg, logger, metricsInstance)
 			mqttClient.Start(cmd.Context()) // start asynchronously
 
 			// Health probes
@@ -83,22 +71,22 @@ func newIngestorCommand() *cobra.Command {
 
 			// Server
 			go func() {
-				runtimeLogger.Info("http server running", "addr", addr)
+				logger.Info("http server running", zap.String("addr", addr))
 				if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-					runtimeLogger.Error(err, "http server failed")
+					logger.Error("http server failed", zap.Error(err))
 				}
 			}()
 			defer func() {
 				if err := server.Shutdown(cmd.Context()); err != nil {
-					runtimeLogger.Error(err, "http shutdown failed")
+					logger.Error("http shutdown failed", zap.Error(err))
 				}
 			}()
 
-			runtimeLogger.Info("MQTT client running. Waiting for messages...")
+			logger.Info("MQTT client running. Waiting for messages...")
 
 			<-cmd.Context().Done()
 
-			runtimeLogger.Info("Shutting down WIS2 Ingest...")
+			logger.Info("Shutting down WIS2 Ingest...")
 
 			return nil
 		},
