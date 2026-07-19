@@ -1,7 +1,5 @@
 github.com/Masterminds/semver/v3 v3.4.0 h1:Zog+i5UMtVoCU8oKka5P7i9q9HgrJeGzI9SA1Xbatp0=
 github.com/Masterminds/semver/v3 v3.4.0/go.mod h1:4V+yj/TJE1HU9XfppCwVMZq3I84lprf4nC11bSS5beM=
-github.com/akuity/kargo v1.10.8 h1:9yuy6vFWfb4LG/JleO8JjJZYJAuSoVabMub6OwDTB7g=
-github.com/akuity/kargo v1.10.8/go.mod h1:1kBBJl36Z7aHW5eJebfk+KFgHtS1rpMEeybYaRX/UAQ=
 github.com/akuity/kargo v1.10.9 h1:tDQYYgjOT8tewg3hDN89bKCQxj9qoLJzy481VNOQXG4=
 github.com/akuity/kargo v1.10.9/go.mod h1:1kBBJl36Z7aHW5eJebfk+KFgHtS1rpMEeybYaRX/UAQ=
 github.com/beorn7/perks v1.0.1 h1:VlbKKnNfV8bJzeqoa4cOKqO6bYr3WgKZxO8Z16+hsOM=
@@ -13,8 +11,6 @@ github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc h1:U9qPSI2PIWSS1
 github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/eclipse/paho.mqtt.golang v1.5.1 h1:/VSOv3oDLlpqR2Epjn1Q7b2bSTplJIeV2ISgCl2W7nE=
 github.com/eclipse/paho.mqtt.golang v1.5.1/go.mod h1:1/yJCneuyOoCOzKSsOTUc0AJfpsItBGWvYpBLimhArU=
-github.com/ghdrope/go-version v0.0.2 h1:ILDSOrOD+npIecMFh7Z6C7ksNIDuzWHq8ap73USd0C8=
-github.com/ghdrope/go-version v0.0.2/go.mod h1:pslwl4lF/iKVEJ1qScpg0fk0bvZZRcG2n+M9GEfjKh8=
 github.com/ghdrope/go-version v0.0.3 h1:sN+btDDQTCOYMlGYpa68UOHMtb4aHQgiWj/YvqDxgu8=
 github.com/ghdrope/go-version v0.0.3/go.mod h1:pslwl4lF/iKVEJ1qScpg0fk0bvZZRcG2n+M9GEfjKh8=
 github.com/go-logr/logr v1.2.2/go.mod h1:jdQByPbusPIv2/zmleS9BjJVeZ6kBagPoEUsqbVz/1A=
@@ -113,3 +109,5 @@ k8s.io/klog/v2 v2.140.0 h1:Tf+J3AH7xnUzZyVVXhTgGhEKnFqye14aadWv7bzXdzc=
 k8s.io/klog/v2 v2.140.0/go.mod h1:o+/RWfJ6PwpnFn7OyAG3QnO47BFsymfEfrz6XyYSSp0=
 sigs.k8s.io/controller-runtime v0.24.1 h1:miPEwrmirImAvgME1L9qebGHrOnGJoVmVdtOU9fRfo4=
 sigs.k8s.io/controller-runtime v0.24.1/go.mod h1:vFkfY5fGt5xAC/sKb8IBFKgWPNKG9OUG29dR8Y2wImw=
+sigs.k8s.io/yaml v1.6.0 h1:G8fkbMSAFqgEFgh4b1wmtzDnioxFCUgTZhlbj5P9QYs=
+sigs.k8s.io/yaml v1.6.0/go.mod h1:796bPqUfzR/0jLAl6XjHl3Ck7MiyVv8dbTdyT3/pMf4=
