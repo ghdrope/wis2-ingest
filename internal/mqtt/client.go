@@ -11,14 +11,14 @@ import (
 	"wis2-ingest/internal/config"
 	"wis2-ingest/internal/metrics"
 
-	"github.com/akuity/kargo/pkg/logging"
 	mqtt "github.com/eclipse/paho.mqtt.golang"
+	"go.uber.org/zap"
 )
 
 // Client wraps an MQTT client and its configuration, logger and metrics.
 type Client struct {
 	cfg       *config.IngestOptions
-	logger    *logging.Logger
+	logger    *zap.Logger
 	client    mqtt.Client
 	connected atomic.Bool
 
@@ -26,7 +26,7 @@ type Client struct {
 }
 
 // NewClient creates a new MQTT client instance.
-func NewClient(cfg *config.IngestOptions, logger *logging.Logger, m *metrics.Metrics) *Client {
+func NewClient(cfg *config.IngestOptions, logger *zap.Logger, m *metrics.Metrics) *Client {
 	if m == nil {
 		logger.Info("metrics is nil - some observability will be disabled.")
 	}
@@ -78,7 +78,7 @@ func (c *Client) connectLoop(ctx context.Context) {
 			token.Wait()
 
 			if token.Error() != nil {
-				c.logger.Error(token.Error(), "subscribe error", "topic", topic)
+				c.logger.Error("subscribe error", zap.Error(token.Error()), zap.String("topic", topic))
 				continue
 			}
 
@@ -88,7 +88,7 @@ func (c *Client) connectLoop(ctx context.Context) {
 
 	// OnConnectionLost logs connection failures.
 	opts.OnConnectionLost = func(client mqtt.Client, err error) {
-		c.logger.Error(err, "MQTT connection lost")
+		c.logger.Error("MQTT connection lost", zap.Error(err))
 		c.connected.Store(false)
 	}
 
@@ -106,7 +106,7 @@ func (c *Client) connectLoop(ctx context.Context) {
 		token.Wait()
 
 		if err := token.Error(); err != nil {
-			c.logger.Error(err, "MQTT connect failed")
+			c.logger.Error("MQTT connect failed", zap.Error(err))
 			time.Sleep(5 * time.Second)
 			continue
 		}
