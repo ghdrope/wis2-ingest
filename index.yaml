@@ -2,6 +2,16 @@ apiVersion: v1
 entries:
   wis2-ingest:
   - apiVersion: v2
+    appVersion: "1.5"
+    created: "2026-08-21T09:33:11.729294+02:00"
+    description: Helm chart for deploying wis2-ingest
+    digest: d14df9a48ef73792e2cd2494af4c89111803410fbc8e946ec2ca3bb924222194
+    name: wis2-ingest
+    type: application
+    urls:
+    - https://ghdrope.github.io/wis2-ingest/wis2-ingest-6.0.1.tgz
+    version: 6.0.1
+  - apiVersion: v2
     appVersion: "1.4"
     created: "2026-06-25T14:45:02.037580664+02:00"
     description: Helm chart for deploying wis2-ingest
@@ -221,4 +231,4 @@ entries:
     urls:
     - https://ghdrope.github.io/wis2-ingest/wis2-ingest-1.0.0.tgz
     version: 1.0.0
-generated: "2026-06-25T14:45:02.025752058+02:00"
+generated: "2026-08-21T09:33:11.728849+02:00"
