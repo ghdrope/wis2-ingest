@@ -9,6 +9,8 @@ github.com/eclipse/paho.mqtt.golang v1.5.1 h1:/VSOv3oDLlpqR2Epjn1Q7b2bSTplJIeV2I
 github.com/eclipse/paho.mqtt.golang v1.5.1/go.mod h1:1/yJCneuyOoCOzKSsOTUc0AJfpsItBGWvYpBLimhArU=
 github.com/ghdrope/go-version v0.0.4 h1:DhrJNhrUvvXx01WBzXdJUstB1JquoKSeUhWMFxCnTEw=
 github.com/ghdrope/go-version v0.0.4/go.mod h1:pslwl4lF/iKVEJ1qScpg0fk0bvZZRcG2n+M9GEfjKh8=
+github.com/ghdrope/go-version v0.0.5 h1:qFpnGxITMSPGA3EF46a0ymE9OmGyP3P7v72uNnvPoXs=
+github.com/ghdrope/go-version v0.0.5/go.mod h1:q4VwwnDrM52I6T7ihGOoYor5DP1CB5seR052I3ETRK8=
 github.com/go-logr/logr v1.2.2/go.mod h1:jdQByPbusPIv2/zmleS9BjJVeZ6kBagPoEUsqbVz/1A=
 github.com/go-logr/logr v1.4.4 h1:tG4xh9yMsRCAiodLVTxyrkzSZ9+o0L1Kg/+cPVcbP/8=
 github.com/go-logr/logr v1.4.4/go.mod h1:9T104GzyrTigFIr8wt5mBrctHMim0Nb2HLGrmQ40KvY=
