@@ -33,9 +33,10 @@ on:
 
 permissions:
   contents: read
-  packages: write
 
 jobs:
   feat-ci-push:
     uses: ghdrope/templates-ci/.github/workflows/go-sast.yml@latest
-    secrets: inherit
+    permissions:
+      contents: read
+      security-events: write

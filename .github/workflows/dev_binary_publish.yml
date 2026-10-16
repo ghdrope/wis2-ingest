@@ -1,0 +1,22 @@
+name: Dev Binary Publish
+
+on:
+  push:
+    branches:
+      - development
+    paths:
+      - 'Makefile'
+      - '.github/workflows/**/*'
+      - 'cmd/**/*'
+      - 'internal/**/*'
+      - 'pkg/**/*'
+      - 'go.mod'
+      - 'go.sum'
+
+permissions: {}
+
+jobs:
+  feat-ci-push:
+    uses: ghdrope/templates-ci/.github/workflows/go-dev_binary_publish.yml@latest
+    permissions:
+      contents: read

@@ -10,12 +10,10 @@ on:
       - 'charts/**/*'
       - '.github/workflows/feat_cd_push.yaml'
 
-permissions:
-  contents: read
-  packages: write
+permissions: {}
 
 jobs:
   feat-ci-push:
     uses: ghdrope/templates-ci/.github/workflows/helm-feat_cd_push.yml@latest
-    secrets: inherit
-        
+    permissions:
+      contents: read

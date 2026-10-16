@@ -14,11 +14,11 @@ on:
       - 'go.sum'
       - 'Dockerfile'
 
-permissions:
-  contents: read
-  packages: write
+permissions: {}
   
 jobs:
   feat-ci-push:
     uses: ghdrope/templates-ci/.github/workflows/docker-docker_dev.yml@latest
-    secrets: inherit
+    permissions:
+      contents: read
+      packages: write
