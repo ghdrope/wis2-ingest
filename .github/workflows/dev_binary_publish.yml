@@ -13,11 +13,10 @@ on:
       - 'go.mod'
       - 'go.sum'
 
-permissions:
-  contents: read
-  packages: write
+permissions: {}
 
 jobs:
   feat-ci-push:
     uses: ghdrope/templates-ci/.github/workflows/go-dev_binary_publish.yml@latest
-    secrets: inherit
+    permissions:
+      contents: read

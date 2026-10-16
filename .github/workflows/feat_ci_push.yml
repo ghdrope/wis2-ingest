@@ -15,11 +15,10 @@ on:
       - 'Makefile'
       - '.github/workflows/feat_ci_push.yml'
 
-permissions:
-  contents: read
-  packages: write
+permissions: {}
 
 jobs:
   feat-ci-push:
     uses: ghdrope/templates-ci/.github/workflows/go-feat_ci_push.yml@latest
-    secrets: inherit
+    permissions:
+      contents: read

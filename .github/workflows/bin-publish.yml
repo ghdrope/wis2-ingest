@@ -7,11 +7,10 @@ on:
     tags:
       - '*.*.*'
 
-permissions:
-  contents: read
-  packages: write
+permissions: {}
 
 jobs:
   feat-ci-push:
     uses: ghdrope/templates-ci/.github/workflows/go-binary_publish.yml@latest
-    secrets: inherit
+    permissions:
+      contents: write
