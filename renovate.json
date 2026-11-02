@@ -9,6 +9,22 @@
   "useBaseBranchConfig": "merge",
   "reviewers": ["ghdrope"],
   "labels": ["renovate"],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "Keep Helm appVersion in sync",
+      "managerFilePatterns": [
+        "/(^|/)Chart\\.yaml$/"
+      ],
+      "matchStrings": [
+        "#\\s*renovate: datasource=github-releases depName=ghdrope/wis2-ingest[^\\n]*\\nappVersion:\\s*[\"']?(?<currentValue>[^\"'\\s]+)"
+      ],
+      "datasourceTemplate": "github-releases",
+      "depNameTemplate": "ghdrope/wis2-ingest",
+      "extractVersionTemplate": "^v?(?<version>\\d+\\.\\d+)",
+      "versioningTemplate": "semver-coerced"
+    }
+  ],
   "packageRules": [
     {
       "reviewers": ["ghdrope"],
