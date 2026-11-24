@@ -5,59 +5,36 @@ import (
 	"testing"
 )
 
-// TestIsDebug validates the behavior of IsDebug under different
-// environment variable configurations.
+// TestIsDebug verifies only DEBUG=true enables debug mode.
 func TestIsDebug(t *testing.T) {
-
 	tests := []struct {
-		name     string
-		envValue string
-		expected bool
+		value string
+		want  bool
 	}{
-		{
-			name:     "debug enabled when DEBUG=true",
-			envValue: "true",
-			expected: true,
-		},
-		{
-			name:     "debug disabled when DEBUG=false",
-			envValue: "false",
-			expected: false,
-		},
-		{
-			name:     "debug disabled when DEBUG is empty",
-			envValue: "",
-			expected: false,
-		},
-		{
-			name:     "debug disabled when DEUBG has invalid value",
-			envValue: "yes",
-			expected: false,
-		},
+		{"true", true},
+		{"false", false},
+		{"", false},
+		{"yes", false},
+		{"TRUE", false}, // exact match only
+		{"1", false},
 	}
-
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-
-			original := os.Getenv("DEBUG")
-
-			t.Cleanup(func() {
-				_ = os.Setenv("DEBUG", original)
-			})
-
-			// Set test-specific environment value.
-			_ = os.Setenv("DEBUG", tt.envValue)
-
-			got := IsDebug()
-
-			if got != tt.expected {
-				t.Errorf(
-					"IsDebug() = %v, want %v (DEBUG=%q)",
-					got,
-					tt.expected,
-					tt.envValue,
-				)
+		t.Run("DEBUG="+tt.value, func(t *testing.T) {
+			t.Setenv("DEBUG", tt.value)
+			if got := IsDebug(); got != tt.want {
+				t.Errorf("IsDebug() = %v; want %v (DEBUG=%q)", got, tt.want, tt.value)
 			}
 		})
+	}
+}
+
+// TestIsDebugUnset verifies debug mode is off when DEBUG is not set at all.
+func TestIsDebugUnset(t *testing.T) {
+	t.Setenv("DEBUG", "") // registers restore of the original value
+	if err := os.Unsetenv("DEBUG"); err != nil {
+		t.Fatal(err)
+	}
+	if IsDebug() {
+		t.Error("IsDebug() = true; want false when DEBUG is unset")
 	}
 }

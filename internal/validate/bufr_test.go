@@ -6,64 +6,51 @@ import (
 	"testing"
 )
 
-// TestIsBUFR_ValidFile verifies that a file containing the BUFR
-// marker is correctly identified as a valid BUFR file.
-func TestIsBUFR_ValidFile(t *testing.T) {
-
-	tmpDir := t.TempDir()
-	path := filepath.Join(tmpDir, "valid.bufr")
-
-	content := []byte("some binary header ... BUFR ... trailing data")
-
-	if err := os.WriteFile(path, content, 0644); err != nil {
-		t.Fatalf("failed to create test file: %v", err)
+// TestIsBUFR verifies files are accepted only when they contain the BUFR
+// start marker followed by the 7777 end marker. The start marker may come
+// after a GTS bulletin header.
+func TestIsBUFR(t *testing.T) {
+	tests := []struct {
+		name    string
+		content string
+		want    bool
+	}{
+		{name: "BUFR message", content: "BUFR\x00\x00\x00\x04body7777", want: true},
+		{name: "marker after a bulletin header", content: "ISMD01 LFPW 010000\r\r\nBUFR...7777", want: true},
+		{name: "html error page", content: "<html><body>404 not found</body></html>"},
+		{name: "html page mentioning BUFR", content: "<html><body>BUFR file not found</body></html>"},
+		{name: "end marker only before BUFR", content: "7777 BUFR truncated"},
+		{name: "lowercase marker", content: "bufr"},
+		{name: "empty file", content: ""},
 	}
-
-	ok, err := IsBUFR(path)
-	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
-
-	if !ok {
-		t.Error("expected file to be valid BUFR")
-	}
-}
-
-// TestIsBUFR_InvalidFile verifies that a file without the BUFR
-// marker is correctly rejected.
-func TestIsBUFR_InvalidFile(t *testing.T) {
-
-	tmpDir := t.TempDir()
-	path := filepath.Join(tmpDir, "invalid.bufr")
-
-	content := []byte("this is just an html error page")
-
-	if err := os.WriteFile(path, content, 0644); err != nil {
-		t.Fatalf("failed to create test file: %v", err)
-	}
-
-	ok, err := IsBUFR(path)
-	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
-
-	if ok {
-		t.Error("expected file to be invalid BUFR")
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			path := filepath.Join(t.TempDir(), "file")
+			if err := os.WriteFile(path, []byte(tt.content), 0o644); err != nil {
+				t.Fatal(err)
+			}
+			got, err := IsBUFR(path)
+			if err != nil {
+				t.Fatalf("IsBUFR() error: %v", err)
+			}
+			if got != tt.want {
+				t.Errorf("IsBUFR(%q) = %v; want %v", tt.content, got, tt.want)
+			}
+		})
 	}
 }
 
-// TestIsBUFR_MissingFile verifies that a missing file
-// returns an error from the filesystem.
-func TestIsBUFR_MissingFile(t *testing.T) {
-
-	path := filepath.Join(t.TempDir(), "does-not-exist.bufr")
-
-	ok, err := IsBUFR(path)
-	if err == nil {
-		t.Fatal("expected error for missing file")
-	}
-
-	if ok {
-		t.Error("expected false result for missing file")
+// TestIsBUFRErrors verifies filesystem errors are returned with false.
+func TestIsBUFRErrors(t *testing.T) {
+	for name, path := range map[string]string{
+		"missing file": filepath.Join(t.TempDir(), "missing"),
+		"directory":    t.TempDir(),
+	} {
+		t.Run(name, func(t *testing.T) {
+			ok, err := IsBUFR(path)
+			if err == nil || ok {
+				t.Errorf("IsBUFR(%s) = %v, %v; want false, error", path, ok, err)
+			}
+		})
 	}
 }

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"sigs.k8s.io/yaml"
 )
@@ -17,7 +18,11 @@ type SecretRef struct {
 	SecretKey  string `yaml:"secretKey"`
 }
 
-// Resolve returns the actual secret value.
+// secretsBasePath is the directory where K8s secrets are mounted.
+// It is a variable only so tests can point it to a temporary directory.
+var secretsBasePath = DefaultConfigBasePath
+
+// ResolveValue returns the actual secret value.
 func (s SecretRef) ResolveValue() (string, error) {
 
 	if s.SecretName == "" {
@@ -28,14 +33,16 @@ func (s SecretRef) ResolveValue() (string, error) {
 		return "", fmt.Errorf("secretKey is required when secretName is set")
 	}
 
-	filePath := filepath.Join(DefaultConfigBasePath, s.SecretName, s.SecretKey)
+	filePath := filepath.Join(secretsBasePath, s.SecretName, s.SecretKey)
 
 	data, err := os.ReadFile(filePath)
 	if err != nil {
 		return "", fmt.Errorf("failed to read secret file %s: %w", filePath, err)
 	}
 
-	return string(data), nil
+	// Secret files often end with a newline (e.g. created with
+	// "kubectl create secret --from-file"), which is not part of the value.
+	return strings.TrimRight(string(data), "\r\n"), nil
 }
 
 // AuthPolicy defines download credentials associated with MQTT topic patterns.
