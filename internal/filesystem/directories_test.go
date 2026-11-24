@@ -3,99 +3,119 @@ package filesystem
 import (
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 )
 
-// TestEnsureDirs_SingleDir verifies a single directory is created.
-func TestEnsureDirs_SingleDir(t *testing.T) {
-	temp := t.TempDir()
-	dirPath := filepath.Join(temp, "single")
-
-	err := EnsureDirs(dirPath)
-	if err != nil {
-		t.Fatalf("expected no error, got %v", err)
+// TestEnsureDirs verifies single, multiple, nested and existing directories
+// are all created without error.
+func TestEnsureDirs(t *testing.T) {
+	base := t.TempDir()
+	existing := filepath.Join(base, "existing")
+	if err := os.Mkdir(existing, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	dirs := []string{
+		filepath.Join(base, "dir1"),
+		filepath.Join(base, "dir2"),
+		filepath.Join(base, "nested", "a", "b"),
+		existing,
 	}
 
-	info, err := os.Stat(dirPath)
-	if err != nil {
-		t.Fatalf("directory was not created: %v", err)
+	if err := EnsureDirs(dirs...); err != nil {
+		t.Fatalf("EnsureDirs() error: %v", err)
 	}
-
-	if !info.IsDir() {
-		t.Errorf("expected %s to be a directory", dirPath)
-	}
-}
-
-// TestEnsureDirs_MultipleDirs verifies multiple directories are created at once.
-func TestEnsureDirs_MultipleDirs(t *testing.T) {
-	temp := t.TempDir()
-	dir1 := filepath.Join(temp, "dir1")
-	dir2 := filepath.Join(temp, "dir2")
-	dir3 := filepath.Join(temp, "dir3")
-
-	err := EnsureDirs(dir1, dir2, dir3)
-	if err != nil {
-		t.Fatalf("expected no error, got %v", err)
-	}
-
-	for _, d := range []string{dir1, dir2, dir3} {
-		info, err := os.Stat(d)
-		if err != nil {
-			t.Fatalf("directory %s was not created: %v", d, err)
-		}
-		if !info.IsDir() {
-			t.Errorf("expected %s to be a directory", d)
+	for _, d := range dirs {
+		if info, err := os.Stat(d); err != nil || !info.IsDir() {
+			t.Errorf("%s was not created as a directory (err=%v)", d, err)
 		}
 	}
 }
 
-// TestEnsureDirs_ExistingDir verifies function does not fail if directory already exists.
-func TestEnsureDirs_ExistingDir(t *testing.T) {
-	temp := t.TempDir()
-	dir := filepath.Join(temp, "existing")
-
-	err := os.MkdirAll(dir, 0755)
-	if err != nil {
-		t.Fatalf("setup failed: %v", err)
-	}
-
-	err = EnsureDirs(dir)
-	if err != nil {
-		t.Fatalf("expected no error when directory already exists, got %v", err)
+// TestEnsureDirsNoArgs verifies calling without paths is a no-op.
+func TestEnsureDirsNoArgs(t *testing.T) {
+	if err := EnsureDirs(); err != nil {
+		t.Fatalf("EnsureDirs() error: %v", err)
 	}
 }
 
-// TestCheckDirWritable_Success verifies a valid writable directory passes the check.
-func TestCheckDirWritable_Success(t *testing.T) {
-	temp := t.TempDir()
+// TestEnsureDirsError verifies the failing path is reported and later
+// paths are not created.
+func TestEnsureDirsError(t *testing.T) {
+	base := t.TempDir()
+	file := filepath.Join(base, "file")
+	if err := os.WriteFile(file, nil, 0o644); err != nil {
+		t.Fatal(err)
+	}
+	bad := filepath.Join(file, "sub")
+	after := filepath.Join(base, "after")
 
-	err := CheckDirWritable(temp)
-	if err != nil {
-		t.Fatalf("expected no error, got %v", err)
+	err := EnsureDirs(bad, after)
+	if err == nil || !strings.Contains(err.Error(), "failed to create directory "+bad) {
+		t.Fatalf("EnsureDirs() error = %v; want failure for %s", err, bad)
+	}
+	if _, err := os.Stat(after); !os.IsNotExist(err) {
+		t.Errorf("%s must not be created after a failure", after)
 	}
 }
 
-// TestCheckDirWritable_NotExist verifies error when directory does not exist.
-func TestCheckDirWritable_NotExist(t *testing.T) {
-	path := filepath.Join(os.TempDir(), "non-existent-dir-xyz")
+// TestCheckDirWritable verifies each outcome of the writability check.
+func TestCheckDirWritable(t *testing.T) {
+	base := t.TempDir()
+	file := filepath.Join(base, "file.txt")
+	if err := os.WriteFile(file, []byte("test"), 0o644); err != nil {
+		t.Fatal(err)
+	}
 
-	err := CheckDirWritable(path)
-	if err == nil {
-		t.Fatal("expected error, got nil")
+	tests := []struct {
+		name    string
+		path    string
+		wantErr string
+	}{
+		{name: "writable directory", path: base},
+		{name: "does not exist", path: filepath.Join(base, "missing"), wantErr: "directory does not exist"},
+		{name: "is a file", path: file, wantErr: "path exists but is not a directory"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			err := CheckDirWritable(tt.path)
+			if tt.wantErr == "" {
+				if err != nil {
+					t.Fatalf("CheckDirWritable() error: %v", err)
+				}
+				return
+			}
+			if err == nil || !strings.Contains(err.Error(), tt.wantErr) {
+				t.Fatalf("CheckDirWritable() error = %v; want containing %q", err, tt.wantErr)
+			}
+		})
 	}
 }
 
-// TestCheckDirWritable_NotDirectory verifies error when path is a file.
-func TestCheckDirWritable_NotDirectory(t *testing.T) {
-	temp := t.TempDir()
-	file := filepath.Join(temp, "file.txt")
-
-	if err := os.WriteFile(file, []byte("test"), 0644); err != nil {
-		t.Fatalf("setup failed: %v", err)
+// TestCheckDirWritableLeavesNoFiles verifies the probe file is removed.
+func TestCheckDirWritableLeavesNoFiles(t *testing.T) {
+	dir := t.TempDir()
+	if err := CheckDirWritable(dir); err != nil {
+		t.Fatal(err)
 	}
+	if entries, _ := os.ReadDir(dir); len(entries) != 0 {
+		t.Errorf("probe file left behind: %v", entries)
+	}
+}
 
-	err := CheckDirWritable(file)
-	if err == nil {
-		t.Fatal("expected error, got nil")
+// TestCheckDirWritableReadOnly verifies a read-only directory is rejected.
+func TestCheckDirWritableReadOnly(t *testing.T) {
+	if os.Geteuid() == 0 {
+		t.Skip("root can write to read-only directories")
+	}
+	dir := filepath.Join(t.TempDir(), "ro")
+	if err := os.Mkdir(dir, 0o555); err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { _ = os.Chmod(dir, 0o755) })
+
+	err := CheckDirWritable(dir)
+	if err == nil || !strings.Contains(err.Error(), "directory is not writable") {
+		t.Fatalf("CheckDirWritable() error = %v; want not writable", err)
 	}
 }

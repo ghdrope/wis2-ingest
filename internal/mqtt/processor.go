@@ -17,6 +17,15 @@ import (
 	"go.uber.org/zap"
 )
 
+// httpClient downloads the files. The MQTT client handles messages one at a
+// time, so a download without a timeout could block the whole ingestion.
+var httpClient = &http.Client{Timeout: 2 * time.Minute}
+
+// staleLockAge is the age after which a lock file is considered left behind
+// by a process that crashed or was killed. It must be longer than the
+// longest download (see httpClient).
+var staleLockAge = 10 * time.Minute
+
 // Processor handles MQTT message processing pipeline:
 // parse → download → validate → store.
 type Processor struct {
@@ -87,8 +96,8 @@ func (p *Processor) processLink(
 		return
 	}
 
-	lockFile, err := os.OpenFile(lockPath, os.O_CREATE|os.O_EXCL, 0644)
-	if err != nil {
+	lockFile, ok := acquireLock(lockPath)
+	if !ok {
 		return // already being processed
 	}
 	defer func() {
@@ -122,7 +131,7 @@ func (p *Processor) processLink(
 		)
 	}
 
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := httpClient.Do(req)
 	if err != nil {
 		p.client.logger.Error("download failed", zap.Error(err), zap.String("href", link.Href))
 		p.client.metrics.IncFailure(ctx, topic)
@@ -133,13 +142,13 @@ func (p *Processor) processLink(
 		_ = resp.Body.Close()
 	}()
 
-	if resp.StatusCode == http.StatusUnauthorized {
-		p.client.logger.Error("authentication failed", zap.Error(err), zap.String("href", link.Href))
-		p.client.metrics.IncFailure(ctx, topic)
-		return
-	}
-
 	if resp.StatusCode != http.StatusOK {
+		msg := "download failed"
+		if resp.StatusCode == http.StatusUnauthorized || resp.StatusCode == http.StatusForbidden {
+			msg = "authentication failed"
+		}
+		p.client.logger.Error(msg, zap.Int("status", resp.StatusCode), zap.String("href", link.Href))
+		p.client.metrics.IncFailure(ctx, topic)
 		return
 	}
 
@@ -150,9 +159,9 @@ func (p *Processor) processLink(
 		return
 	}
 
-	if _, err := validate.IsBUFR(tmpPath); err != nil {
+	if ok, err := validate.IsBUFR(tmpPath); err != nil || !ok {
 
-		p.client.logger.Error("invalid BUFR file", zap.Error(err), zap.String("file", tmpPath))
+		p.client.logger.Error("invalid BUFR file", zap.Error(err), zap.String("file", tmpPath), zap.String("href", link.Href))
 
 		_ = os.Remove(tmpPath)
 
@@ -179,6 +188,28 @@ func (p *Processor) processLink(
 		zap.String("file", finalPath),
 		zap.String("topic", topic),
 	)
+}
+
+// acquireLock creates the lock file at path. It reports false when another
+// worker holds the lock. A lock older than staleLockAge was left behind by a
+// process that died while downloading, so it is removed and taken over.
+func acquireLock(path string) (*os.File, bool) {
+	f, err := os.OpenFile(path, os.O_CREATE|os.O_EXCL, 0644)
+	if err == nil {
+		return f, true
+	}
+
+	info, statErr := os.Stat(path)
+	if statErr != nil || time.Since(info.ModTime()) < staleLockAge {
+		return nil, false
+	}
+
+	if err := os.Remove(path); err != nil && !os.IsNotExist(err) {
+		return nil, false
+	}
+
+	f, err = os.OpenFile(path, os.O_CREATE|os.O_EXCL, 0644)
+	return f, err == nil
 }
 
 // isValidLink reports whether a link is eligible for download.
