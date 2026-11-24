@@ -1,8 +1,12 @@
 package main
 
 import (
+	"context"
+	"errors"
+	"fmt"
 	"net/http"
 	"os"
+	"time"
 	"wis2-ingest/internal/config"
 	"wis2-ingest/internal/filesystem"
 	"wis2-ingest/internal/health"
@@ -70,23 +74,33 @@ func newIngestorCommand() *cobra.Command {
 			}
 
 			// Server
+			serverErr := make(chan error, 1)
 			go func() {
 				logger.Info("http server running", zap.String("addr", addr))
-				if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-					logger.Error("http server failed", zap.Error(err))
-				}
-			}()
-			defer func() {
-				if err := server.Shutdown(cmd.Context()); err != nil {
-					logger.Error("http shutdown failed", zap.Error(err))
+				if err := server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+					serverErr <- err
 				}
 			}()
 
 			logger.Info("MQTT client running. Waiting for messages...")
 
-			<-cmd.Context().Done()
+			// Without the HTTP server there are no probes or metrics, so a
+			// failure (e.g. port already in use) stops the ingestor.
+			select {
+			case <-cmd.Context().Done():
+			case err := <-serverErr:
+				return fmt.Errorf("http server failed: %w", err)
+			}
 
 			logger.Info("Shutting down WIS2 Ingest...")
+
+			// cmd.Context() is already cancelled here, so the shutdown gets
+			// its own timeout to let in-flight requests finish.
+			ctx, cancel := context.WithTimeout(context.Background(), shutdownTimeout)
+			defer cancel()
+			if err := server.Shutdown(ctx); err != nil {
+				logger.Error("http shutdown failed", zap.Error(err))
+			}
 
 			return nil
 		},
@@ -94,3 +108,7 @@ func newIngestorCommand() *cobra.Command {
 
 	return cmd
 }
+
+// shutdownTimeout bounds how long the HTTP server waits for in-flight
+// requests on shutdown.
+const shutdownTimeout = 10 * time.Second

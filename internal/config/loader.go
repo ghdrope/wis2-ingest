@@ -59,7 +59,11 @@ func (o *IngestOptions) loadFromEnv() error {
 			v.Field(i).SetString(val)
 
 		case reflect.Slice:
-			v.Field(i).Set(reflect.ValueOf(parseDelimitedList(val, ";")))
+			// Only []string can be populated from a delimited env value.
+			// Other slices (e.g. AuthPolicies) are loaded from ConfigMaps.
+			if v.Field(i).Type().Elem().Kind() == reflect.String {
+				v.Field(i).Set(reflect.ValueOf(parseDelimitedList(val, ";")))
+			}
 		}
 	}
 

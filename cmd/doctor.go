@@ -62,11 +62,15 @@ func newDoctorCommand() *cobra.Command {
 			mqttClient := mqtt.NewClient(cfg, zap.L(), metricsInstance)
 
 			// To avoid hanging indefinitely a context with timeout is placed here
-			ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+			ctx, cancel := context.WithTimeout(context.Background(), doctorMQTTTimeout)
 			defer cancel()
 
-			// Start MQTT connection assynchronously
+			// Start MQTT connection asynchronously and wait for it
 			mqttClient.Start(ctx)
+
+			if err := waitConnected(ctx, mqttClient); err != nil {
+				return fmt.Errorf("❌ MQTT connection check failed: %w", err)
+			}
 
 			fmt.Println("✅ MQTT connection check passed")
 
@@ -78,4 +82,24 @@ func newDoctorCommand() *cobra.Command {
 
 	cmd.Flags().BoolVarP(&verbose, "verbose", "v", false, "Print configuration values")
 	return cmd
+}
+
+// doctorMQTTTimeout bounds how long doctor waits for the MQTT connection.
+var doctorMQTTTimeout = 5 * time.Second
+
+// waitConnected polls c until it reports a connection or ctx is done.
+func waitConnected(ctx context.Context, c interface{ Connected() bool }) error {
+	ticker := time.NewTicker(50 * time.Millisecond)
+	defer ticker.Stop()
+
+	for {
+		if c.Connected() {
+			return nil
+		}
+		select {
+		case <-ctx.Done():
+			return fmt.Errorf("not connected to MQTT broker: %w", ctx.Err())
+		case <-ticker.C:
+		}
+	}
 }

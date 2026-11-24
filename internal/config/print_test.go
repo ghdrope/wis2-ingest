@@ -1,44 +1,31 @@
 package config
 
 import (
-	"strings"
 	"testing"
 )
 
-// TestPrintVerboseIncludesNonSensitiveFields verifies that
-// non-sensitive configuration values are rendered.
-func TestPrintVerboseIncludesNonSensitiveFields(t *testing.T) {
-
+// TestPrintVerbose verifies the exact output: printable fields are listed by
+// env name, while sensitive and print:"false" fields are omitted.
+func TestPrintVerbose(t *testing.T) {
 	opts := &IngestOptions{
-		Host:      "localhost",
-		Username:  "user",
-		Password:  "secret",
-		Topics:    []string{"topic"},
-		OutputDir: "/tmp",
+		Host:                      "localhost",
+		Username:                  "user",
+		Password:                  "super-secret",
+		Topics:                    []string{"t1", "t2"},
+		OutputDir:                 "/tmp",
+		AuthPoliciesConfigMapPath: "/etc/hidden.yaml",
+		AuthPolicies: []AuthPolicy{
+			{Name: "p", Password: SecretRef{Value: "policy-secret"}},
+		},
 	}
 
-	output := opts.PrintVerbose()
+	want := "Configuration values:\n" +
+		"  WIS2_MQTT_HOST       : localhost\n" +
+		"  WIS2_MQTT_USERNAME   : user\n" +
+		"  WIS2_MQTT_TOPIC      : [t1 t2]\n" +
+		"  WIS2_OUTPUT_DIRECTORY : /tmp\n"
 
-	if !strings.Contains(output, "localhost") {
-		t.Fatal("expected host in output")
-	}
-
-	if !strings.Contains(output, "/tmp") {
-		t.Fatal("expected output dir in output")
-	}
-}
-
-// TestPrintVerboseOmitsSensitiveFields verifies that
-// sensitive values are excluded from verbose output.
-func TestPrintVerboseOmitsSensitiveFields(t *testing.T) {
-
-	opts := &IngestOptions{
-		Password: "super-secret",
-	}
-
-	output := opts.PrintVerbose()
-
-	if strings.Contains(output, "super-secret") {
-		t.Fatal("password should not be printed")
+	if got := opts.PrintVerbose(); got != want {
+		t.Errorf("PrintVerbose() =\n%s\nwant\n%s", got, want)
 	}
 }

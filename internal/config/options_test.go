@@ -1,22 +1,19 @@
 package config
 
-import "testing"
+import (
+	"reflect"
+	"testing"
+)
 
-// TestNewIngestOptions verifies that default values
-// are correctly initialized.
+// TestNewIngestOptions verifies the defaults: the public WIS2 global broker
+// with its anonymous credentials, and nothing else set.
 func TestNewIngestOptions(t *testing.T) {
-
-	opts := NewIngestOptions()
-
-	if opts.Host != "globalbroker.meteo.fr" {
-		t.Errorf("unexpected host: %s", opts.Host)
+	want := &IngestOptions{
+		Host:     "globalbroker.meteo.fr",
+		Username: "everyone",
+		Password: "everyone",
 	}
-
-	if opts.Username != "everyone" {
-		t.Errorf("unexpected username: %s", opts.Username)
-	}
-
-	if opts.Password != "everyone" {
-		t.Errorf("unexpected password")
+	if got := NewIngestOptions(); !reflect.DeepEqual(got, want) {
+		t.Errorf("NewIngestOptions() = %+v; want %+v", got, want)
 	}
 }
